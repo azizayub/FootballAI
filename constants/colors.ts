@@ -1,0 +1,16 @@
+export const Colors = {
+  background: '#000000',
+  cardBackground: '#1C1C1E',
+  searchBackground: '#2C2C2E',
+  primaryText: '#FFFFFF',
+  secondaryText: '#8E8E93',
+  accent: '#34C759',
+  rankingFirst: '#FF3B30',
+  rankingSecond: '#FF6B35',
+  rankingThird: '#FF9500',
+  tabActive: '#FFFFFF',
+  tabActiveText: '#000000',
+  tabInactiveText: '#8E8E93',
+  border: '#2C2C2E',
+  inputBackground: '#1C1C1E',
+};
