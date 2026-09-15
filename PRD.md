@@ -1,745 +1,614 @@
-# Football AI — Product Requirements Document (PRD)
+# Football AI — PRD (Technischer Spec)
 
-**Version:** 1.0
-**Datum:** 17. März 2026
-**Status:** Phase 2 — UI Development
-**Projekt:** FootballAI5
+**Version:** 2.0
+**Stand:** 26. Juli 2026
+**Phase:** Phase 2, UI und Screens mit Dummy-Daten
+**Repo:** github.com/azizayub/FootballAI
 
----
-
-## 1. Produktvision
-
-Football AI ist die erste KI-gestützte Mobile App, die Fußball-Fan-Diskussionen in Sekunden mit klaren Stat-Vergleichen und starken Visuals entscheidet. Die App verbindet natürliche Sprache mit Echtzeit-Fußballstatistiken und liefert visuell ansprechende Spielervergleiche, Einzelspieler-Analysen und positionsbasierte Rankings.
-
-### 1.1 Kernproblem
-
-Fußballfans diskutieren täglich in WhatsApp-Gruppen, auf Twitter/X, TikTok und am Stammtisch über Spieler — „Wer ist aktuell besser: Mbappé oder Kane?" — aber es gibt kein Tool, das diese Fragen sofort, visuell und datenbasiert beantwortet. ChatGPT kann zwar Fragen beantworten, liefert aber keine visuellen Stat-Vergleiche. Stat-Websites wie WhoScored oder FBref sind zu komplex für Casual-Fans.
-
-### 1.2 Lösung
-
-Eine Chat-basierte App, in der Fans Fragen in natürlicher Sprache stellen. Die KI versteht die Frage, holt die relevanten Statistiken und liefert das Ergebnis als visuellen Split-Screen-Vergleich oder Stat-Karte zurück — minimalistisch, intuitiv, sofort teilbar.
-
-### 1.3 Hauptunterscheidungsmerkmal (USP)
-
-Die visuellen Stat-Karten und Split-Screen-Vergleiche. Kein anderes Tool liefert Fußball-Statistiken so visuell aufbereitet und fanfreundlich.
+> [!info] Scope dieses Dokuments
+> Diese PRD ist der technische Anker für Claude Code. Sie beschreibt Tech Stack, Screens, Datenmodell, Design-System, Datenquellen und Konventionen. Business-Kontext (Zielgruppe, Monetarisierung, Markt, Roadmap, Moat) lebt in Obsidian und ist die Single Source of Truth für alles Strategische.
+>
+> **Business-Kontext:** siehe Obsidian `Football AI/Business Model.md`
+> **Kostenlogik und Sportmonks-Kalkulation:** siehe Obsidian `Football AI/Kostenstruktur.md` und `Datenstruktur.md`
+> **Entwicklungs-Stack im Detail:** siehe Obsidian `Football AI/App Entwickelung.md`
 
 ---
 
-## 2. Zielgruppe
+## 1. Produkt in einem Satz
 
-### 2.1 Primäre Zielgruppe
+Football AI ist eine Mobile App (iOS und Android), in der Fußballfans in natürlicher Sprache Fragen zu Spielern stellen und Antworten als visuelle Stat-Karten, Split-Screen-Vergleiche und positionsbasierte Rankings bekommen. Kernprinzipien: Fan first, Mobile first, Visual first, MVP first.
 
-Fußballfans im Alter von 16–45 Jahren, die aktiv diskutieren:
-- Social-Media-Nutzer (Twitter/X, TikTok, Instagram)
-- WhatsApp-Gruppen-Teilnehmer
-- Stammtisch-Diskutierer
-- Typische Fragen: „Wer ist aktuell besser?", „Wie war die Form der letzten 5 Spiele?"
-
-### 2.2 Sekundäre Zielgruppe
-
-- Fantasy-Football-Spieler, die schnelle Stat-Checks brauchen
-- Casual-Fans, die Zahlen einfach erklärt haben wollen
-- Content-Creator (Fußball-TikTok, YouTube, Instagram), die Visuals für ihre Inhalte nutzen
-
-### 2.3 Bewusst ausgeschlossen
-
-Scouts, Analysten und Vereine — die App ist kein Profi-Tool, sondern ein Fan-Tool.
+Ausführliche Positionierung und USP siehe Obsidian `Business Model`.
 
 ---
 
-## 3. Tech Stack
+## 2. Tech Stack
 
 | Komponente | Technologie | Details |
 |---|---|---|
 | Framework | React Native + Expo | SDK 54, TypeScript |
-| Database & Auth | Supabase | Projekt „Football AI", Region Frankfurt (eu-central-1), Project ID: `tttahpvwxmtyeczfbmfk` |
-| Fußball-Daten | API-Football | via RapidAPI |
-| KI-Layer | Claude API / GPT-4o API | Für natürliche Sprachverarbeitung und Antwort-Generierung |
-| IDE | Cursor | Pro Plan, mit Claude Code Plugin |
-| Sprache | TypeScript | Durchgehend im gesamten Projekt |
-| Deployment | Expo Go (Dev) → App Store / Play Store (Prod) | iOS + Android |
+| Navigation | Expo Router | File-based Routing |
+| IDE | VS Code | mit Claude Code als Haupt-Coding-Assistent |
+| Backend | Supabase | Region Frankfurt (`eu-central-1`), Project ID `tttahpvwxmtyeczfbmfk` |
+| Fußball-Daten | Sportmonks | via REST API, Zugriff über Supabase Edge Functions |
+| KI-Layer | Claude Haiku | via Anthropic API, Zugriff über Supabase Edge Functions |
+| Auth | Supabase Auth | Email, Google, Apple Sign-In (Phase 4) |
+| Sprache | TypeScript | im gesamten Projekt |
+| Builds | Expo EAS | Cloud Builds für iOS und Android |
+| Deployment | Expo Go (Dev) → TestFlight → App Store / Play Store | iOS zuerst, Android parallel |
+| Git | GitHub | Repo `github.com/azizayub/FootballAI` |
 
-### 3.1 Architektur-Übersicht
+> [!important] Wichtige Entscheidungen
+> - Cursor wurde durch VS Code plus Claude Code ersetzt.
+> - API-Football wurde durch Sportmonks ersetzt (Begründung siehe Obsidian `Datenstruktur.md`).
+> - GPT-4o wurde durch Claude Haiku ersetzt (Kosteneffizienz bei hohem Anfragevolumen).
+> - **Kein separater Node.js Backend-Server.** Alle Serverlogik läuft über Supabase Edge Functions.
+
+### 2.1 Architektur-Übersicht
 
 ```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│   React Native   │────▶│  Supabase        │────▶│  API-Football    │
-│   (Expo SDK 54)  │     │  (Edge Functions) │     │  (RapidAPI)      │
-│                  │     │  (Auth)           │     │                  │
-│                  │     │  (Database)       │     └──────────────────┘
-│                  │     │                   │
-│                  │     │                   │────▶┌──────────────────┐
-└──────────────────┘     └──────────────────┘     │  Claude / GPT-4o │
-                                                   │  (KI-Layer)      │
-                                                   └──────────────────┘
+┌──────────────────┐     ┌───────────────────┐     ┌──────────────────┐
+│   React Native   │────▶│  Supabase         │────▶│  Sportmonks API  │
+│   (Expo SDK 54)  │     │  Edge Functions   │     │                  │
+│                  │     │  Auth             │     └──────────────────┘
+│                  │     │  Postgres         │
+│                  │     │  player_cache     │────▶┌──────────────────┐
+└──────────────────┘     └───────────────────┘     │  Claude Haiku    │
+                                                    │  (Anthropic API) │
+                                                    └──────────────────┘
 ```
-
-**Kein separater Node.js-Backend-Server.** Alle Serverlogik läuft über Supabase Edge Functions.
 
 ---
 
-## 4. App-Struktur & Navigation
+## 3. Projektstruktur
 
-### 4.1 Navigationsstruktur
+```
+FootballAI/
+├── app/                          # Expo Router
+│   ├── _layout.tsx               # Root Stack
+│   ├── index.tsx                 # Splash Screen
+│   ├── (tabs)/
+│   │   ├── _layout.tsx           # Custom Bottom Tab Bar
+│   │   ├── index.tsx             # Home Screen
+│   │   └── rankings.tsx          # Rankings Screen
+│   ├── chat/[id].tsx             # Chat Screen (Single + Vergleich)
+│   └── player/[id].tsx           # Player Detail Screen
+│
+├── components/
+│   ├── common/
+│   │   ├── Header.tsx            # App-Header (Logo + Profilbild)
+│   │   ├── SearchBar.tsx         # Spieler-Suchleiste + Dropdown
+│   │   ├── TabBar.tsx            # Custom Bottom-Tab-Leiste
+│   │   └── PlayerAvatar.tsx      # Rundes Spielerbild
+│   │
+│   ├── chat/
+│   │   ├── MessageBubble.tsx     # User- und AI-Nachrichten
+│   │   ├── StatCard.tsx          # Single-Player Stat-Karte
+│   │   ├── ComparisonCard.tsx    # Split-Screen Vergleich
+│   │   ├── RadarChart.tsx        # Attributsranking (6 Achsen, Perzentile)
+│   │   ├── ChatInput.tsx         # Eingabefeld mit „+ Spieler Vergleich" Toggle
+│   │   └── FeedbackButtons.tsx   # Thumbs up / down
+│   │
+│   ├── rankings/
+│   │   ├── PositionFilter.tsx    # Positions-Pill-Filter
+│   │   ├── RankingCard.tsx       # Ranking-Eintrag (collapsed)
+│   │   └── RankingCardExpanded.tsx # Score-Tabelle bei Tap auf Rang
+│   │
+│   └── player/
+│       ├── PlayerHeader.tsx      # Spieler-Kopfbereich
+│       ├── StatOverview.tsx      # „In allen Wettbewerben"-Karte
+│       ├── CompetitionPicker.tsx # Wettbewerbs-Dropdown/Accordion
+│       └── DetailedStats.tsx     # Stat-Gruppen (Offensive, Passspiel, Defensive)
+│
+├── lib/
+│   ├── supabase.ts               # Supabase Client (Phase 1 fertig)
+│   ├── sportmonks.ts             # Sportmonks Wrapper (Phase 3)
+│   └── ai.ts                     # Claude-Haiku-Layer (Phase 3)
+│
+├── hooks/
+│   ├── usePlayer.ts
+│   ├── useChat.ts
+│   └── useRankings.ts
+│
+├── types/
+│   ├── player.ts
+│   ├── chat.ts
+│   └── stats.ts
+│
+├── constants/
+│   ├── colors.ts                 # siehe §6
+│   ├── theme.ts                  # Typografie und Radii
+│   ├── positions.ts              # PlayerPosition-Mapping
+│   └── dummyData.ts              # Dummy-Daten für Phase 2
+│
+├── assets/
+│   └── images/
+│
+└── PRD.md                        # dieses Dokument
+```
+
+---
+
+## 4. Navigation
 
 ```
 App
-├── Splash Screen (Opening Screen)
+├── Splash Screen
 │
 ├── Tab Navigator (Bottom Tabs)
 │   ├── Home Tab
-│   │   ├── Home Screen (Hauptscreen)
-│   │   ├── Chat Screen (Push-Navigation)
-│   │   └── Player Detail Screen (Push-Navigation)
+│   │   ├── Home Screen
+│   │   ├── Chat Screen (Push)
+│   │   └── Player Detail Screen (Push)
 │   │
 │   └── Rankings Tab
 │       ├── Rankings Screen
-│       └── Player Detail Screen (Push-Navigation)
+│       └── Player Detail Screen (Push)
 │
 └── Global Overlay
-    └── Player Search (Dropdown über Suchleiste)
+    └── Spieler-Suche (Dropdown über Suchleiste)
 ```
 
-### 4.2 Tab-Leiste
-
-Zwei Tabs am unteren Bildschirmrand:
-- **Home** — Hauptscreen mit Chat-Eingabe und Chat-Historie
-- **Rankings** — Positionsbasierte Spieler-Rankings
-
-Design: Pill-förmige Tab-Leiste, zentriert, mit abgerundeten Ecken. Weißer Hintergrund für aktiven Tab, transparenter Hintergrund für inaktiven Tab. Text in schwarz (aktiv) und grau (inaktiv).
+Bottom-Tab-Bar: pill-förmig, zentriert am unteren Rand. Aktiver Tab: weißer Hintergrund, schwarzer Text. Inaktiver Tab: transparent, grauer Text.
 
 ---
 
 ## 5. Screen-Spezifikationen
 
-### 5.1 Splash Screen (Opening Screen)
+### 5.1 Splash Screen
 
-**Zweck:** App-Branding beim Start.
-
-**Layout:**
-- Vollständig schwarzer Hintergrund
-- Zentrierter Text: „Football" in hellgrauer, dünner Schrift + „AI" in weißer, fetter, kursiver Schrift
-- Keine Buttons, keine weiteren Elemente
-- Automatischer Übergang zum Home Screen nach 2–3 Sekunden
-
----
+Schwarzer Vollhintergrund. Zentriert: „Football" in hellgrauer dünner Schrift, „AI" in weißer fetter kursiver Schrift. Kein Interaktion. Auto-Übergang zum Home Screen nach 2 bis 3 Sekunden.
 
 ### 5.2 Home Screen
 
-**Zweck:** Zentraler Einstiegspunkt der App. Von hier aus stellen Nutzer Fragen, starten Vergleiche und greifen auf ihre Chat-Historie zu.
+Header (Logo links, Profilbild rechts). Darunter Spieler-Suchleiste (Placeholder „Spieler suchen", vertikaler Divider, runder Pfeil-Button rechts). Bei Eingabe öffnet sich Dropdown (siehe 5.3).
 
-**Layout (von oben nach unten):**
+Darunter Begrüßungsbereich: „Hi {Name}" in weißer fetter Schrift, darunter „Welche Debatte beenden wir heute?" in grauer Schrift.
 
-#### Header-Bereich
-- Links: App-Logo „Football AI" (gleicher Style wie Splash Screen, aber kleiner)
-- Rechts: Profilbild des Nutzers (rund, ca. 40px)
+Darunter das große Chat-Eingabefeld (mehrzeilig, Placeholder „Stelle deine Frage"). Unten links im Feld: Chip-Button „+ Spieler Vergleich". Unten rechts: Send-Button (runder Pfeil nach oben).
 
-#### Spieler-Suchleiste
-- Vollbreite, abgerundete Suchleiste mit Placeholder „Spieler suchen"
-- Rechts in der Leiste: ein vertikaler Divider-Strich und ein runder Pfeil-Button (→) zum Bestätigen
-- Hintergrund: dunkelgrau (#1C1C1E oder ähnlich)
-- Bei Eingabe: Dropdown mit Suchergebnissen (siehe 5.3)
+Darunter „Deine Chats" (weiße fette Überschrift) mit „Siehe alle"-Link rechts. Darunter vertikale Liste bisheriger Chats als abgerundete Karten mit Chat-Titel.
 
-#### Begrüßungsbereich
-- Fettgedruckt: „Hi {Name}"
-- Darunter in grauer Schrift: „Welche Debatte beenden wir heute?"
+### 5.3 Spieler-Suche (Dropdown-Overlay)
 
-#### Chat-Eingabefeld
-- Großes, mehrzeiliges Textfeld mit Placeholder „Stelle deine Frage"
-- Hintergrund: dunkelgrau, abgerundete Ecken
-- Unten links im Feld: Button „+ Spieler Vergleich" (Chip/Pill-Design)
-- Unten rechts im Feld: Sende-Button (runder Pfeil nach oben ↑)
+Getriggert durch Texteingabe in die Suchleiste (Home und Rankings). Erscheint als Overlay direkt unter der Suchleiste, leicht heller Hintergrund als Base, dezente Border, Rest der Seite leicht unscharf.
 
-#### Chat-Historie-Bereich
-- Überschrift links: „Deine Chats" (fett, weiß)
-- Rechts daneben: „Siehe alle" (grauer Link-Text)
-- Darunter: Liste bisheriger Chats als Karten
-  - Jede Karte: abgerundete Ecken, dunkelgrauer Hintergrund
-  - Text: Chat-Titel (z.B. „Meisten Tore in 2026", „Vinicius vs Olise in 25/26", „Ronaldo vs Messi All Time")
-  - Karten sind vertikal gestapelt mit kleinem Abstand
+Jeder Eintrag: Rundes Spielerbild links, Spielername (fett weiß) rechts, darunter Club-Logo plus Länderflagge.
 
----
-
-### 5.3 Spieler-Suche (Dropdown)
-
-**Zweck:** Globale Spielersuche, erreichbar über die Suchleiste auf Home Screen und Rankings Screen.
-
-**Verhalten:**
-- Triggered durch Texteingabe in die Suchleiste
-- Dropdown erscheint direkt unter der Suchleiste als Overlay über dem restlichen Content
-- Hintergrund: etwas heller als der Haupthintergrund, mit dezenter Border
-
-**Suchergebnis-Einträge:**
-- Spielerbild (rund, klein)
-- Spielername (fett, weiß)
-- Darunter: Club-Logo + Länderflagge
-- Oder: Club-Name + Land (als Text)
-
-**Aktion bei Tap auf Spieler:** Navigation zum Player Detail Screen.
-
----
+Tap auf Eintrag → Navigation zum Player Detail Screen.
 
 ### 5.4 Chat Screen
 
-**Zweck:** KI-gestützte Konversation über Spieler-Statistiken mit visuellen Stat-Karten.
+Fixierter Header (gleich wie Home). Suchleiste darunter. Chat-Bereich scrollbar. Fixiertes Eingabefeld unten (identisch zum Home-Chat-Feld, plus Toggle-Zustand für „+ Spieler Vergleich" wird zu „✕ Spieler Vergleich" wenn aktiv).
 
-**Layout:**
+**User-Nachrichten:** rechts ausgerichtet, dunkelgrauer Hintergrund, abgerundete Ecken, weißer Text.
 
-#### Header (gleich wie Home Screen)
-- App-Logo links, Profilbild rechts
-- Spieler-Suchleiste darunter
+**AI-Antwort Single Player:** links ausgerichtet. Spieler-Stat-Karte mit rundem Bild, Name (fett), Club-Emoji, Länderflagge. Darunter horizontale Stat-Leiste: Tore, Vorlagen, Spiele, xG, Erfolgr. Dribblings %, Rating (Rating als grüner Badge). Darunter Text-Antwort der KI. Darunter Feedback-Icons (Thumbs up / down).
 
-#### Chat-Bereich (scrollbar)
-Nachrichten-Verlauf zwischen Nutzer und KI:
+**Follow-up-Fragen im Single-Player-Chat:** Multi-Turn wird unterstützt. Der User kann direkt eine Folge-Frage stellen („Kannst du mir sagen wie viele Chancen er kreiert hat und wie viele Ballkontakte er hat?"). Die AI antwortet dann ohne erneute Stat-Karte, nur mit Text-Antwort und Feedback-Icons. Kontext des aktuellen Spielers bleibt erhalten für die gesamte Session, bis der User explizit einen neuen Spieler sucht oder in einen Vergleich wechselt.
 
-**Nutzer-Nachrichten:**
-- Rechts ausgerichtet
-- Dunkelgrauer Hintergrund, abgerundete Ecken
-- Weißer Text
+**AI-Antwort Spieler-Vergleich (Split-Screen):** Header oben zeigt Chip „Spieler A vs Spieler B". Zwei Spieler nebeneinander, je Bild, Name, Club-Emoji, Flagge. Darunter pro Spieler kompakte Stat-Grid in zwei Zeilen: Zeile 1 Tore, Vorlagen, Rating; Zeile 2 xG, Erfolgr. Dribblings, Spiele. Rating jeweils grüner Badge.
 
-**KI-Antworten (Single Player):**
-- Links ausgerichtet
-- Spieler-Stat-Karte:
-  - Spielerbild (rund) + Name (fett) + Club-Emoji + Länderflagge
-  - Darunter: Stat-Leiste mit Key-Stats als horizontale Reihe
-    - Tore, Vorlagen, Spiele, xG, Erfolgr. Dribblings (%), Rating
-    - Rating hervorgehoben (grüner Hintergrund)
-  - Darunter: Text-Antwort der KI
-  - Darunter: Thumbs-up / Thumbs-down Icons für Feedback
+Unter der Split-Screen-Karte folgt Verdict-Text (opinionated Fazit der KI, z. B. „Basierend auf den Stats der letzten 5 Spiele, würde ich sagen dass **Mbappe besser ist.**"), darunter Feedback-Icons.
 
-**KI-Antworten (Spieler-Vergleich / Split-Screen):**
-- Zwei Spieler nebeneinander:
-  - Links: Spieler A — Bild, Name, Club-Emoji, Flagge
-  - Rechts: Spieler B — Bild, Name, Club-Emoji, Flagge
-- Darunter für jeden Spieler (zwei Spalten):
-  - Tore, Vorlagen, Rating (Zeile 1)
-  - xG, Erfolgr. Dribblings, Spiele (Zeile 2)
-  - Rating jeweils farbig hervorgehoben (grün)
-- Darunter: KI-Text-Antwort mit Fazit (z.B. „Basierend auf den Stats der letzten 5 Spiele, würde ich sagen dass **Mbappe besser ist.**")
-- Thumbs-up / Thumbs-down
+Bei Nachfrage nach mehr Details („Kannst du mir mehr Details geben?") wird zusätzlich das **Attributsranking (Radar/Spider Chart)** gerendert (siehe 5.4.1).
 
-#### Eingabebereich (fixiert am unteren Rand)
-- Textfeld: „Stelle deine Frage"
-- Links unten: „+ Spieler Vergleich" Button (toggle: wenn aktiv → „✕ Spieler Vergleich")
-- Rechts unten: Sende-Button (↑)
+#### 5.4.1 Attributsranking (Radar/Spider Chart)
 
----
+Sechseckiges Radar-Chart auf schwarzem Karten-Hintergrund. Titel oben links: „Attributsranking". Untertitel: „Perzentil-Vergleich (letzte 5 Spiele)".
+
+**6 Achsen (positionsspezifisch, Beispiel für Offensivspieler):**
+- Ballkontakte
+- Herausgespielte Chancen
+- Gewonnene Luftkämpfe
+- Defensive Aktionen
+- Tore
+- Schuss-Versuche
+
+Für andere Positionen (OM, DM, IV, LV, RV, TW) werden die 6 Achsen entsprechend gewechselt. Mapping siehe §7.2.
+
+**Rendering:**
+- Achsen als graue gepunktete Linien
+- Spieler A: blaues Polygon (`#3B82F6`), Punkte blau
+- Spieler B: rotes Polygon (`#EF4444`), Punkte rot
+- Beide Polygone semi-transparent gefüllt
+- Werte auf jeder Achse: `{Perzentil A}% · {Perzentil B}%` in Blau und Rot
+
+Perzentil bezieht sich auf alle Spieler derselben Position in derselben Liga. Standard-Zeitraum letzte 5 Spiele.
 
 ### 5.5 Player Detail Screen
 
-**Zweck:** Vollständige Statistik-Übersicht eines einzelnen Spielers mit Wettbewerbsfilter.
+**Spieler-Header:** Rundes Bild (ca. 60 px), Name groß fett, Trikotnummer im abgerundeten Kasten rechts. Darunter Club-Logo plus Club-Name. Darunter Länderflagge plus Land.
 
-**Layout (von oben nach unten):**
+**Meta-Reihe:** Position, Alter, Größe, Starker Fuß (horizontal nebeneinander mit Labels).
 
-#### Spieler-Header
-- Spielerbild (rund, groß, ca. 60px)
-- Name: groß, fett, weiß
-- Trikotnummer in einem abgerundeten Kasten (z.B. „10")
-- Darunter: Club-Logo + Club-Name
-- Darunter: Länderflagge + Land
+**Gesamtstatistik-Karte:** Label „In allen Wettbewerben". Horizontale Stat-Leiste: Tore, Vorlagen, xG, Erfolgr. Dribblings, Spiele, Rating (Rating als grüner Badge).
 
-#### Meta-Informationen (horizontale Reihe)
-- Position (z.B. „ST")
-- Alter (z.B. „27")
-- Größe (z.B. „1,78")
-- Starker Fuß (z.B. „Rechts")
+**Wettbewerbs-Auswahl (Accordion):** Aufklappbare Liste aller Wettbewerbe des Spielers. Jeder Eintrag: Wettbewerbs-Logo plus Name plus Saison (z. B. „LaLiga 25/26", „UEFA Champions League 25/26", „Copa del Rey 25/26", „Supercopa 25/26", „WM 2026"). Bei Auswahl: alle darunter angezeigten Detail-Stats filtern sich auf diesen Wettbewerb.
 
-#### Gesamtstatistik-Leiste
-- Label: „In allen Wettbewerben"
-- Horizontale Stat-Reihe: Tore, Vorlagen, xG, Erfolgr. Dribblings, Spiele, Rating
-- Rating: grüner Badge
-
-#### Wettbewerbs-Auswahl (Dropdown/Accordion)
-- Aufklappbare Liste aller Wettbewerbe in denen der Spieler spielt
-- Jeder Eintrag: Wettbewerbs-Logo + Name + Saison (z.B. „LaLiga 25/26")
-- Beispiele: LaLiga 25/26, UEFA Champions League 25/26, Copa del Rey 25/26, Supercopa 25/26, WM 2026
-- Bei Auswahl: Stats darunter filtern sich auf diesen Wettbewerb
-
-#### Detaillierte Statistiken (scrollbare Liste)
-
-**Offensive:**
-- Schüsse
-- Schussgenauigkeit %
-- Tore
-- Erwartete Tore (xG)
-- Tore pro 90min
-- Dribblings
-- Erfolgreiche Dribblings %
-
-**Passspiel:**
-- Pässe
-- Erfolgreiche Pässe %
-- Vorlagen
-- Erwartete Vorlagen (xA)
-- Chancen kreiert
-- Große Chancen kreiert
-
-**Defensive:**
-- Zweikämpfe
-- Gewonnene Zweikämpfe %
-- Abgefangene Bälle
-
-**Hinweis:** Die angezeigten Statistik-Kategorien variieren je nach Position des Spielers (Stürmer, Mittelfeld, Verteidiger, Torhüter — siehe Abschnitt 7.2).
-
----
+**Detaillierte Statistiken (scrollbar, gruppiert):** Aufteilung nach Offensive, Passspiel, Defensive. Angezeigte Kategorien variieren je nach Position (siehe §7.2).
 
 ### 5.6 Rankings Screen
 
-**Zweck:** Positionsbasierte Top-10-Rankings der besten Spieler nach aktueller Form.
+Header (gleich wie Home). Suchleiste darunter.
 
-**Layout (von oben nach unten):**
+**Positions-Filter:** Label „Position". Darunter horizontale Pill-Reihe mit 8 Positionen in dieser Reihenfolge: **ST, LF, RF, OM, DM, IV, LV, RV**. Aktiver Filter: weißer Hintergrund, schwarzer Text. Inaktiv: transparent, grauer Text. (TW ist Post-Launch und wird im Filter erst später ergänzt.)
 
-#### Header (gleich wie andere Screens)
-- App-Logo + Profilbild
-- Suchleiste
+**Rankings-Liste:** Label rechts „Rankings". Darunter nummerierte Karten 1 bis 10.
 
-#### Positions-Filter
-- Label: „Position"
-- Horizontale Pill/Chip-Reihe mit Positionen: ST, LF, RF, MI, IV, LV, RV
-- Aktiver Filter: weißer Hintergrund mit schwarzem Text (Pill-Design)
-- Inaktive Filter: transparenter Hintergrund mit grauem Text
+Plätze 1 bis 3: Farbverlauf-Hintergrund (rot bei Platz 1, abnehmende Intensität rot-orange bei 2 und 3). Plätze 4+: dunkelgrauer Standard-Karten-Hintergrund. Jede Karte: kleines rundes Spielerbild, Name fett weiß, Club-Logo plus Länderflagge (bei Platz 1 bis 3) oder Club-Name plus Land (bei Platz 4+), Platzierungsnummer rechts.
 
-#### Rankings-Liste
-- Label rechts: „Rankings"
-- Liste von Spieler-Karten, nummeriert 1–10 (oder mehr)
+**Expanded State (bei Tap auf Karte, insbesondere Platz 1):** Karte vergrößert sich, zeigt Score-Tabelle mit Spalten Kategorien, Anzahl, Faktor, Score. Zeilen: Tore, Vorlagen, Kreierte Chancen, Erfolgr. Dribblings. Letzte Zeile Gesamt-Score fett. Beispiel-Berechnung siehe §7.4.
 
-**Spieler-Karten (collapsed):**
-- Plätze 1–3: Farbverlauf-Hintergrund (rot → orange, abnehmende Intensität)
-- Plätze 4+: dunkelgrauer Hintergrund
-- Jede Karte zeigt:
-  - Spielerbild (rund, klein)
-  - Name (fett, weiß)
-  - Club-Logo + Länderflagge
-  - Platzierung (Nummer rechts)
-
-**Spieler-Karte (expanded / bei Tap auf Platz 1):**
-- Gleicher Farbverlauf-Hintergrund, aber vergrößert
-- Zeigt Scoring-Tabelle:
-  - Spalten: Kategorien, Anzahl, Faktor, Score
-  - Zeilen: Tore (Anzahl × Faktor = Score), Vorlagen, Kreierte Chancen, Erfolgr. Dribblings
-  - Letzte Zeile: Gesamt-Score (fett, hervorgehoben)
-- Bei Tap auf Karte: Navigation zum Player Detail Screen
+Bei Tap auf Karten-Body: Navigation zum Player Detail Screen.
 
 ---
 
 ## 6. Design-System
 
-### 6.1 Farbschema
+### 6.1 Farbschema (Dark Mode only)
 
-| Element | Farbe | Hex (geschätzt) |
+| Element | Farbe | Hex |
 |---|---|---|
-| Hintergrund (App) | Schwarz | `#000000` |
+| Hintergrund App | Schwarz | `#000000` |
 | Karten-Hintergrund | Dunkelgrau | `#1C1C1E` |
 | Suchleiste-Hintergrund | Dunkelgrau | `#2C2C2E` |
 | Primärtext | Weiß | `#FFFFFF` |
 | Sekundärtext | Grau | `#8E8E93` |
-| Akzent (Rating-Badge) | Grün | `#34C759` |
-| Rankings Platz 1 | Rot | `#FF3B30` |
-| Rankings Gradient | Rot → Orange → Transparent | `#FF3B30` → `#FF9500` → transparent |
-| Tab aktiv (Hintergrund) | Weiß | `#FFFFFF` |
-| Tab aktiv (Text) | Schwarz | `#000000` |
-| Tab inaktiv (Text) | Grau | `#8E8E93` |
+| Rating-Badge | Grün | `#34C759` |
+| **Vergleich Spieler A** | **Blau** | **`#3B82F6`** |
+| **Vergleich Spieler B** | **Rot** | **`#EF4444`** |
+| Ranking Platz 1 | Rot | `#FF3B30` |
+| Ranking Gradient | Rot → Orange → Transparent | `#FF3B30` → `#FF9500` → transparent |
+| Tab aktiv Hintergrund | Weiß | `#FFFFFF` |
+| Tab aktiv Text | Schwarz | `#000000` |
+| Tab inaktiv Text | Grau | `#8E8E93` |
 
 ### 6.2 Typografie
 
-| Element | Gewicht | Größe (geschätzt) |
+| Element | Gewicht | Größe (Richtwert) |
 |---|---|---|
-| App-Logo „Football" | Light/Thin | 20–24px |
-| App-Logo „AI" | Bold Italic | 20–24px |
-| Begrüßung „Hi Name" | Bold | 24–28px |
-| Section-Titel (z.B. „Deine Chats") | Bold | 18–20px |
-| Spielername (Karten) | Bold | 16–18px |
-| Body-Text | Regular | 14–16px |
-| Stat-Label (z.B. „Tore", „Vorlagen") | Regular | 10–12px |
-| Stat-Werte | Bold | 16–20px |
+| App-Logo „Football" | Light | 20 bis 24 px |
+| App-Logo „AI" | Bold Italic | 20 bis 24 px |
+| Begrüßung „Hi {Name}" | Bold | 24 bis 28 px |
+| Section-Titel | Bold | 18 bis 20 px |
+| Spielername (Karten) | Bold | 16 bis 18 px |
+| Body-Text | Regular | 14 bis 16 px |
+| Stat-Label | Regular | 10 bis 12 px |
+| Stat-Werte | Bold | 16 bis 20 px |
+
+System Font: SF Pro (iOS) / Roboto (Android) via React Native Defaults.
 
 ### 6.3 Allgemeine Design-Regeln
 
-- **Dark Mode only** — die App hat keinen Light Mode
-- **Abgerundete Ecken** — alle Karten, Buttons, Eingabefelder: border-radius ca. 12–16px
-- **Minimalistisch** — viel Whitespace (bzw. Blackspace), keine überflüssigen Elemente
-- **Kein Scout-Jargon** — alle Stats in fanverständlicher Sprache
-- **System Font** — SF Pro (iOS) / Roboto (Android) via React Native Defaults, oder eine ähnliche saubere Sans-Serif
+- Dark Mode only, kein Light Mode
+- Border-Radius Karten und Buttons: 12 bis 16 px
+- Minimalistisch, viel Blackspace, keine überflüssigen Elemente
+- Kein Scout-Jargon in Labels, alle Stats in fanverständlicher Sprache
 
 ---
 
-## 7. Datenmodell & Statistiken
+## 7. Datenmodell und Statistiken
 
 ### 7.1 Spieler-Datenobjekt
 
 ```typescript
 interface Player {
-  id: number;                    // API-Football Player ID
-  name: string;                  // Vollständiger Name
-  firstname: string;
-  lastname: string;
+  id: number;                    // Sportmonks Player ID
+  name: string;
+  firstName: string;
+  lastName: string;
   age: number;
-  nationality: string;           // z.B. „Frankreich"
+  nationality: string;           // z. B. „Frankreich"
   nationalityFlag: string;       // Flaggen-Emoji oder URL
-  height: string;                // z.B. „1,78"
-  preferredFoot: string;         // „Rechts" | „Links" | „Beidfüßig"
-  photo: string;                 // URL zum Spielerbild
+  height: string;                // z. B. „1,78"
+  preferredFoot: 'Rechts' | 'Links' | 'Beidfüßig';
+  photo: string;
   position: PlayerPosition;
   team: {
     id: number;
-    name: string;               // z.B. „Real Madrid"
-    logo: string;               // URL zum Club-Logo
+    name: string;
+    logo: string;
   };
-  number: number;               // Trikotnummer
+  number: number;                // Trikotnummer
 }
 
-type PlayerPosition = 'ST' | 'LF' | 'RF' | 'MI' | 'IV' | 'LV' | 'RV' | 'TW';
+type PlayerPosition =
+  | 'ST'   // Stürmer
+  | 'LF'   // Linksaußen
+  | 'RF'   // Rechtsaußen
+  | 'OM'   // Offensives Mittelfeld
+  | 'DM'   // Defensives Mittelfeld
+  | 'IV'   // Innenverteidiger
+  | 'LV'   // Linksverteidiger
+  | 'RV'   // Rechtsverteidiger
+  | 'TW';  // Torhüter (Post-Launch)
 ```
 
-### 7.2 Statistiken nach Position
+### 7.2 Statistiken pro Position
 
-**Offensivspieler (ST, LF, RF):**
-- Tore, Assists
+**Offensivspieler (ST, LF, RF)**
+- Tore, Vorlagen
 - xG, xA
 - Chancen kreiert, Große Chancen kreiert
-- Schüsse, Schüsse aufs Tor
+- Schüsse, Schussgenauigkeit %, Tore pro 90 min
 - Dribblings, Erfolgreiche Dribblings %
 - Rating
 
-**Mittelfeld (MI):**
-- Chancen kreiert
+**Offensives Mittelfeld (OM)**
+- Chancen kreiert, Große Chancen kreiert
 - Ballkontakte
-- Assists, xA
+- Vorlagen, xA
 - Progressive Aktionen (vereinfacht)
 - Pässe, Erfolgreiche Pässe %
 - Rating
 
-**Defensive Spieler (IV, LV, RV):**
-- Zweikämpfe gewonnen
-- Interceptions / Tackles
-- Klärungen
-- Fehler, die zu Chancen führten
+**Defensives Mittelfeld (DM)**
+- Zweikämpfe, Gewonnene Zweikämpfe %
+- Interceptions, Tackles
+- Ballkontakte
+- Pässe, Erfolgreiche Pässe %
+- Progressive Aktionen (vereinfacht)
 - Rating
 
-**Torhüter (TW):**
+**Verteidiger (IV, LV, RV)**
+- Zweikämpfe gewonnen
+- Interceptions, Tackles
+- Klärungen
+- Fehler die zu Chancen führten
+- Rating
+
+**Torhüter (TW, Post-Launch)**
 - Paraden
 - Gegentore
 - Clean Sheets
 - Prevented Goals (vereinfacht)
 - Rating
 
-### 7.3 Ranking-Score-Berechnung
+**Radar-Chart-Achsen pro Position:**
 
-Die Rankings basieren auf einer internen Punkte-Logik (dem User nicht direkt sichtbar, aber bei Tap auf Platz 1 einsehbar):
+| Position | Achse 1 | Achse 2 | Achse 3 | Achse 4 | Achse 5 | Achse 6 |
+|---|---|---|---|---|---|---|
+| ST / LF / RF | Ballkontakte | Herausgespielte Chancen | Gewonnene Luftkämpfe | Defensive Aktionen | Tore | Schuss-Versuche |
+| OM | Ballkontakte | Chancen kreiert | Pass-Genauigkeit | Progressive Pässe | Vorlagen | Tore |
+| DM | Zweikämpfe gewonnen | Interceptions | Pass-Genauigkeit | Progressive Pässe | Ballkontakte | Tackles |
+| IV | Zweikämpfe gewonnen | Klärungen | Interceptions | Pass-Genauigkeit | Luftkämpfe | Blocks |
+| LV / RV | Zweikämpfe gewonnen | Interceptions | Flanken | Progressive Läufe | Tackles | Pass-Genauigkeit |
+| TW | Paraden % | Prevented Goals | Clean Sheets | Pass-Genauigkeit | Abschläge | Herausgespielte Chancen verhindert |
 
-```
-Score = (Tore × 2) + (Vorlagen × 1) + (Kreierte Chancen × 0.5) + (Erfolgr. Dribblings × 0.25)
-```
+### 7.3 Zeiträume
 
-Die Gewichtungsfaktoren variieren je nach Position. Diese Logik ist vereinfacht und wird nicht als „wissenschaftlich" dargestellt — es ist ein fanfreundlicher Score.
-
-### 7.4 Zeiträume
-
-- **Standard:** Aktuelle Form (letzte 5 Spiele)
-- **Optional:** Gesamte Saison
+- **Standard:** letzte 5 Spiele (aktuelle Form)
+- **Optional (Free):** aktuelle Saison
 - **Optional (Pro):** All-Time
+
+### 7.4 Rankings-Score
+
+Vereinfachte, transparente Formel. Bei Tap auf einen Ranking-Eintrag wird die Rechnung offengelegt.
+
+**Beispiel Stürmer:**
+```
+Score = (Tore × 2) + (Vorlagen × 1) + (Kreierte Chancen × 0,5) + (Erfolgr. Dribblings × 0,25)
+```
+
+Gewichtungsfaktoren variieren je nach Position. Faktoren für OM, DM, IV, LV, RV und TW werden in `constants/positions.ts` gepflegt.
+
+Rankings werden 1x täglich pro Position batch-vorberechnet und aus der Supabase-DB serviert (siehe §10.2).
 
 ---
 
-## 8. KI-Layer
+## 8. KI-Layer (Claude Haiku)
 
 ### 8.1 Zweck
 
-Der KI-Layer übersetzt natürliche Sprache der Fans in strukturierte Stat-Abfragen und generiert verständliche, opinionated Antworten.
+Der KI-Layer übersetzt natürliche Sprache in strukturierte Stat-Abfragen und generiert opinionated Verdicts.
 
 ### 8.2 Sprachverarbeitung
 
-- Kein Prompt-Zwang — Nutzer können frei formulieren wie bei ChatGPT/Gemini
-- Umgangssprache wird verstanden (z.B. „Wer ist aktuell krasser?" funktioniert)
-- Multi-Language-Support (mindestens Deutsch und Englisch)
+- Kein Prompt-Zwang, freie Formulierung wie ChatGPT
+- Umgangssprache verstehen (z. B. „Wer ist krasser?")
+- Multi-Language mindestens Deutsch und Englisch, Antwort in Sprache der Frage
 
 ### 8.3 Antwort-Typen
 
-**Single-Player-Analyse:**
-- Trigger: „Wie ist die aktuelle Form von Mbappé?"
-- Output: Spieler-Stat-Karte + Text-Analyse
+| Trigger-Beispiel | Antwort-Typ | Rendering |
+|---|---|---|
+| „Wie ist die Form von Mbappé?" | Single-Player-Analyse | Stat-Karte + Text |
+| „Wer ist besser, Mbappé oder Kane?" | Vergleich | Split-Screen + Verdict |
+| „Kannst du mir mehr Details geben?" (nach Vergleich) | Vergleich + Radar | Split-Screen + Verdict + Radar-Chart |
+| „Wer hat die meisten Tore in 2026?" | Ranking-Query | Text-Antwort mit Ranking-Verweis |
+| „Wie viele Chancen hat er kreiert?" (Follow-up) | Text-Follow-up | reiner Text, Kontext bleibt beim aktuellen Spieler |
 
-**Spieler-Vergleich:**
-- Trigger: „Wer ist besser, Mbappé oder Kane?" / „Vergleich Mbappé Kane letzte 5 Spiele"
-- Output: Split-Screen-Vergleich + Fazit-Text
+### 8.4 Antwortstruktur
 
-**Allgemeine Fußball-Frage:**
-- Trigger: „Wer hat die meisten Tore in 2026?"
-- Output: Text-Antwort (ggf. mit Ranking-Verweis)
+Jede KI-Antwort besteht aus (je nach Typ):
+1. **Structured Output** (JSON): Stat-Karten-Daten, Vergleichs-Daten, Radar-Werte
+2. **Text-Block**: opinionated Analyse oder Verdict
+3. **Feedback-UI**: Thumbs up / down auf Nachricht-Ebene
 
-### 8.4 KI-Antwortstruktur
+Die KI gibt klare Meinungen ab. Beispiel-Formulierung: „Basierend auf den Stats der letzten 5 Spiele würde ich sagen dass **Mbappe besser ist.**"
 
-Die KI liefert eine Antwort bestehend aus:
-1. **Visueller Block** — Stat-Karte oder Split-Screen (strukturierte Daten)
-2. **Text-Block** — Natürlichsprachliche Analyse/Fazit
-3. **Feedback** — Thumbs-up/Thumbs-down für die Antwort
+### 8.5 Kontext-Management
 
-Die KI gibt opinionated Antworten ab — sie sagt klar, wer ihrer Meinung nach besser ist, basierend auf den Daten.
+- Chat-Kontext: pro Chat werden User-Fragen plus AI-Antworten in `messages`-Tabelle gespeichert
+- Aktueller Spieler-Kontext bleibt für die gesamte Chat-Session erhalten, bis explizit gewechselt wird
+- Sprachwechsel ist innerhalb einer Session möglich
 
 ---
 
-## 9. Supabase-Datenbankschema (geplant)
+## 9. Supabase-Datenbankschema
 
 ### 9.1 Tabellen
 
 **users**
-- id (UUID, PK)
-- email
-- display_name
-- avatar_url
-- created_at
-- subscription_tier ('free' | 'pro')
+- `id` (UUID, PK)
+- `email`
+- `display_name`
+- `avatar_url`
+- `subscription_tier` (`'free'` | `'pro'`)
+- `created_at`
 
 **chats**
-- id (UUID, PK)
-- user_id (FK → users)
-- title (z.B. „Mbappe vs Kane letzte 5 Spiele")
-- created_at
-- updated_at
+- `id` (UUID, PK)
+- `user_id` (FK → users)
+- `title` (auto-generiert, z. B. „Mbappe vs Kane")
+- `created_at`
+- `updated_at`
 
 **messages**
-- id (UUID, PK)
-- chat_id (FK → chats)
-- role ('user' | 'assistant')
-- content (Text der Nachricht)
-- stat_card (JSONB — strukturierte Stat-Daten für visuelle Karten)
-- created_at
+- `id` (UUID, PK)
+- `chat_id` (FK → chats)
+- `role` (`'user'` | `'assistant'`)
+- `content` (Text)
+- `structured_output` (JSONB, für Stat-Karten und Radar-Daten)
+- `created_at`
 
 **player_cache**
-- player_api_id (Integer, PK)
-- data (JSONB — gecachte Spielerdaten von API-Football)
-- last_updated (Timestamp)
+- `player_sportmonks_id` (Integer, PK)
+- `timeframe` (`'last5'` | `'season'` | `'alltime'`)
+- `data` (JSONB, gecachte Sportmonks-Response inkl. Perzentile)
+- `last_updated` (Timestamp)
 
-### 9.2 Row Level Security (RLS)
+**rankings_cache**
+- `position` (PlayerPosition)
+- `data` (JSONB, Top-N mit Score-Breakdown)
+- `last_computed` (Timestamp)
 
-Alle Tabellen mit RLS gesichert:
-- Users sehen nur ihre eigenen Chats und Messages
-- player_cache ist read-only für authentifizierte User
+### 9.2 Row Level Security
+
+- `users`, `chats`, `messages`: RLS erzwingt `user_id = auth.uid()`
+- `player_cache`, `rankings_cache`: read-only für authentifizierte User, Write nur Edge Functions
 
 ---
 
-## 10. API-Integration (API-Football via RapidAPI)
+## 10. Sportmonks-Integration
 
-### 10.1 Benötigte Endpoints
+### 10.1 Benötigte Endpoints (Phase 3)
 
-- `GET /players` — Spielersuche nach Name
+- `GET /players/search/{name}` — Spielersuche
 - `GET /players/{id}` — Spieler-Details
-- `GET /players/{id}/statistics` — Spieler-Statistiken pro Saison/Wettbewerb
-- `GET /fixtures` — Spieldaten (für „letzte X Spiele")
+- `GET /players/{id}/statistics/seasons/{seasonId}` — Saison-Stats
+- `GET /fixtures/between/{startDate}/{endDate}` — für „letzte X Spiele"
 - `GET /leagues` — Liga-Informationen
+- `GET /players/{id}/percentiles` — für Radar-Chart
+
+Alle Aufrufe laufen über Supabase Edge Functions, nicht direkt aus der App.
 
 ### 10.2 Caching-Strategie
 
-- Spieler-Stammdaten: Cache für 24 Stunden
-- Statistiken: Cache für 1–6 Stunden (abhängig davon ob gerade Spieltag ist)
-- Wettbewerbs-Daten: Cache für 7 Tage
-- Cache in Supabase `player_cache`-Tabelle
+Ziel: Sportmonks-Requests minimieren, Kosten kontrollieren, Antwortzeit senken.
+
+| Datentyp | TTL |
+|---|---|
+| Spieler-Stammdaten | 24 h |
+| Player-Stats (letzte 5) | 6 h während Spieltagen, 24 h sonst |
+| Player-Stats (Saison, All-Time) | 24 h |
+| Vergleichs-Ergebnisse | 24 h, gehasht per `playerA + playerB + timeframe` |
+| Rankings pro Position | 24 h, batch-vorberechnet 1x pro Tag |
+| Wettbewerbs-Daten | 7 Tage |
+
+KI-Antworten: Structured Output speichern, nicht Freitext (siehe 8.4).
 
 ### 10.3 Rate-Limiting
 
-API-Football hat Request-Limits je nach Plan. Die App sollte:
-- Anfragen über Supabase Edge Functions bündeln
-- Caching aggressiv nutzen
-- Rate-Limits clientseitig tracken
+Sportmonks-Plan Beta: 5 Ligen (Starter, ca. 24 €/Monat yearly). Rate-Limit-Tracking client-seitig plus in Edge Functions. Details zur Plan-Kalkulation siehe Obsidian `Datenstruktur.md` und `Kostenstruktur.md`.
 
 ---
 
-## 11. Monetarisierung
+## 11. Pro-Gating
 
-### 11.1 Free Version (Hauptfokus)
+Nur die für Claude Code relevante Feature-Gating-Logik. Vollständiges Pricing und Revenue-Modell siehe Obsidian `Business Model.md`.
 
-Ziel: Maximale Nutzerzahl → Werbeumsatz
-
-Enthalten:
-- Spieler A vs. Spieler B Vergleiche
+**Free:**
+- Spieler A vs. Spieler B (unbegrenzt in Beta, ggf. Rate-Limit ab Launch)
 - Single-Player-Analysen
-- Aktuelle Form (letzte Spiele)
-- Rankings (Top 10 nach Position/Form)
-- Volle Visuals
+- Aktuelle Form (letzte 5 Spiele) und aktuelle Saison
+- Rankings Top-10 pro Position
+- Volle Visuals inklusive Radar-Chart
+- Native Ads eingebettet in Feed und Rankings
 
-Monetarisierung:
-- Native Ads (nahtlos ins Design integriert)
-- Kleine Werbeflächen in Feed und Rankings
-- Keine Pop-ups, kein Autoplay
-
-### 11.2 Pro Version
-
-Preis: 4,99 € / Monat oder 39,99 € / Jahr
-
-Enthalten:
+**Pro (4,99 €/Monat oder 39,99 €/Jahr):**
 - Werbefrei
-- Unbegrenzte Vergleiche
-- Alle Zeiträume inkl. All-Time
-- Erweiterte Rankings
-- Schnellere Antworten (Prioritäts-Queue)
+- Unbegrenzte Vergleiche (falls Free rate-limited wird)
+- All-Time-Zeitraum verfügbar
+- Erweiterte Rankings (Top 25+)
+- Prioritäts-Queue für schnellere KI-Antworten
+
+Feature-Flag via `users.subscription_tier`. Gating clientseitig plus serverseitig in Edge Functions durchsetzen.
 
 ---
 
-## 12. Entwicklungs-Roadmap
+## 12. Nicht im MVP (bewusst weggelassen)
 
-### Phase 1 — Setup & Grundlagen ✅ ABGESCHLOSSEN
-- Expo-Projekt erstellt (FootballAI5, SDK 54, TypeScript)
-- App läuft auf iPhone via Expo Go
-- Supabase-Projekt verbunden (Frankfurt)
-- Cursor IDE konfiguriert
-- Supabase-Client (`lib/supabase.ts`) eingerichtet
+Damit Claude Code diese Features nicht spekulativ mitbaut:
 
-### Phase 2 — UI & Screens (AKTUELL)
-- Navigation Setup (Tab-Navigator: Home + Rankings)
-- Splash Screen
-- Home Screen (mit Dummy-Daten)
-- Chat Screen (mit Dummy-Daten)
-- Player Detail Screen (mit Dummy-Daten)
-- Rankings Screen (mit Dummy-Daten)
-- Spieler-Suche (Dropdown, mit Dummy-Daten)
-- Globale Design-Komponenten (Stat-Karten, Split-Screen, Ranking-Cards)
-
-### Phase 3 — Daten & KI-Integration
-- API-Football Anbindung (über Supabase Edge Functions)
-- Spielersuche mit echten Daten
-- Stat-Abruf und -Aufbereitung
-- KI-Layer Integration (Claude/GPT-4o)
-- Chat-Funktionalität mit echten Antworten
-- Ranking-Berechnung mit echten Daten
-- Caching-System
-
-### Phase 4 — Auth, Profile & Launch
-- Supabase Auth (Email, Google, Apple Sign-In)
-- User-Profile
-- Chat-Persistenz (Speichern und Laden von Chats)
-- Pro-Version / Subscription-System
-- Native Ads Integration
-- App Store / Play Store Submission
-- Beta-Testing
-
----
-
-## 13. Bewusst nicht im Launch (Future Features)
-
-- Gegnerstärke-Gewichtung (wie stark waren die Gegner?)
-- Heim/Auswärts-Gewichtung
-- Diskussionsmodus / Argumentkarten
+- Gegnerstärke-Gewichtung
+- Heim / Auswärts-Gewichtung
+- Diskussionsmodus, Argumentkarten
 - Profi-Analyse-Tools
-- Web-App Version
-- Sponsoring von Rankings / Brand-Placements
-- Creator-Kooperationen
-- Sharing-Features (Stat-Karten als Bild teilen)
+- Web-App
+- Sharing (Stat-Karten als Bild teilen)
+- Sponsoring von Rankings, Brand-Placements als Feature
+- Creator-Kooperationen als App-Feature
+- Torhüter-Ranking (kommt post-launch)
+
+Business-Priorisierung dieser Future-Features lebt in Obsidian.
 
 ---
 
-## 14. Ligen
+## 13. Dummy-Daten für Phase 2
 
-**Technisch:** Alle von API-Football unterstützten Ligen sind verfügbar.
+Zentralisiert in `constants/dummyData.ts`. Realistisch, aber statisch. Wird in Phase 3 durch echte Sportmonks-Daten ersetzt.
 
-**Marketing-Fokus:**
-- Top-5-Ligen (Premier League, La Liga, Bundesliga, Serie A, Ligue 1)
-- Champions League / Europa League
-- MLS
-- Saudi Pro League
+**Kylian Mbappé**
+- Team: Real Madrid, Nummer 10, Position ST, Alter 27, Größe 1,78, Fuß Rechts, Land Frankreich
+- Saison-Stats: 30 Tore, 7 Vorlagen, 28 xG, 56,4 % Dribblings, 25 Spiele, Rating 7,90
+- Letzte 5 Spiele: 8 Tore, 1 Vorlage, 6 xG, 56,4 % Dribblings, 5 Spiele, Rating 8,50
 
-Kommunikation: „Auch deine Liga ist drin" als Bonus-Feature.
+**Harry Kane**
+- Team: Bayern München, Nummer 9, Position ST, Alter 32, Größe 1,88, Fuß Rechts, Land England
+- Letzte 5 Spiele: 5 Tore, 2 Vorlagen, 6 xG, 45,8 % Dribblings, 5 Spiele, Rating 7,00
 
----
-
-## 15. Projektstruktur (empfohlen)
-
-```
-FootballAI5/
-├── app/                          # Expo Router oder Navigation
-│   ├── (tabs)/                   # Tab-Navigator
-│   │   ├── index.tsx             # Home Screen
-│   │   └── rankings.tsx          # Rankings Screen
-│   ├── chat/[id].tsx             # Chat Screen
-│   └── player/[id].tsx           # Player Detail Screen
-│
-├── components/                   # Wiederverwendbare UI-Komponenten
-│   ├── common/                   # Allgemeine Komponenten
-│   │   ├── Header.tsx            # App-Header (Logo + Profilbild)
-│   │   ├── SearchBar.tsx         # Spieler-Suchleiste
-│   │   ├── TabBar.tsx            # Custom Tab-Leiste
-│   │   └── PlayerAvatar.tsx      # Rundes Spielerbild
-│   │
-│   ├── chat/                     # Chat-spezifische Komponenten
-│   │   ├── MessageBubble.tsx     # Chat-Nachrichten
-│   │   ├── StatCard.tsx          # Single-Player Stat-Karte
-│   │   ├── ComparisonCard.tsx    # Split-Screen Vergleich
-│   │   ├── ChatInput.tsx         # Eingabefeld mit Vergleich-Toggle
-│   │   └── FeedbackButtons.tsx   # Thumbs up/down
-│   │
-│   ├── rankings/                 # Rankings-spezifische Komponenten
-│   │   ├── PositionFilter.tsx    # Positions-Pill-Filter
-│   │   ├── RankingCard.tsx       # Ranking-Eintrag
-│   │   └── RankingCardExpanded.tsx # Expandierte Scoring-Tabelle
-│   │
-│   └── player/                   # Player-Detail-Komponenten
-│       ├── PlayerHeader.tsx      # Spieler-Kopfbereich
-│       ├── StatOverview.tsx      # Gesamtstatistik-Leiste
-│       ├── CompetitionPicker.tsx # Wettbewerbs-Dropdown
-│       └── DetailedStats.tsx     # Ausführliche Stat-Liste
-│
-├── lib/                          # Utility & Konfiguration
-│   ├── supabase.ts               # Supabase Client (existiert bereits)
-│   ├── api-football.ts           # API-Football Wrapper
-│   └── ai.ts                     # KI-Layer (Claude/GPT-4o)
-│
-├── hooks/                        # Custom React Hooks
-│   ├── usePlayer.ts
-│   ├── useChat.ts
-│   └── useRankings.ts
-│
-├── types/                        # TypeScript Typen
-│   ├── player.ts
-│   ├── chat.ts
-│   └── stats.ts
-│
-├── constants/                    # Konstanten
-│   ├── colors.ts                 # Farbschema
-│   ├── dummyData.ts              # Dummy-Daten für Phase 2
-│   └── positions.ts              # Positions-Mapping
-│
-├── assets/                       # Statische Assets
-│   └── images/
-│
-└── PRD.md                        # Dieses Dokument
-```
-
----
-
-## 16. Dummy-Daten für Phase 2
-
-Da in Phase 2 noch keine API-Anbindung erfolgt, werden alle Screens mit realistischen Dummy-Daten befüllt. Die Dummy-Daten sollten in `constants/dummyData.ts` zentralisiert werden.
-
-### Beispiel-Spieler für Dummy-Daten:
-
-**Kylian Mbappé:**
-- Team: Real Madrid, Nummer: 10, Position: ST, Alter: 27, Größe: 1,78, Fuß: Rechts, Land: Frankreich
-- Stats (Saison): 30 Tore, 7 Vorlagen, 28 xG, 56.4% Dribblings, 25 Spiele, Rating 7.90
-- Stats (letzte 5): 8 Tore, 1 Vorlage, Rating 8.50
-
-**Harry Kane:**
-- Team: Bayern München, Nummer: 9, Position: ST, Alter: 32, Größe: 1,88, Fuß: Rechts, Land: England
-- Stats (letzte 5): 5 Tore, 2 Vorlagen, Rating 7.00
-
-### Beispiel-Chats:
+**Beispiel-Chat-Titel:**
 - „Meisten Tore in 2026"
 - „Vinicius vs Olise in 25/26"
 - „Ronaldo vs Messi All Time"
 
-### Beispiel-Rankings (ST):
-1. Kylian Mbappé (Score: 152)
-2. Harry Kane
-3–10: Platzhalter-Spieler
+**Beispiel-Rankings (ST):**
+- Platz 1: Kylian Mbappé (Score 152)
+- Platz 2: Harry Kane
+- Platz 3 bis 10: Platzhalter
+
+**Beispiel Radar-Chart (Mbappé blau vs. Kane rot):**
+- Ballkontakte 95 % · 42 %
+- Herausgespielte Chancen 92 % · 55 %
+- Gewonnene Luftkämpfe 32 % · 88 %
+- Defensive Aktionen 18 % · 46 %
+- Tore 99 % · 78 %
+- Schuss-Versuche 100 % · 65 %
 
 ---
 
-## 17. Nicht-funktionale Anforderungen
+## 14. Nicht-funktionale Anforderungen
 
-- **Performance:** App soll flüssig laufen auf iPhones ab iPhone 11 und vergleichbaren Android-Geräten
-- **Offline:** Grundlegende Navigation funktioniert offline, Daten werden gecacht
-- **Barrierefreiheit:** Grundlegendes Accessibility-Support (Labels, Kontraste)
-- **Sprache:** App-UI initial auf Deutsch, KI-Antworten in der Sprache der Frage
-- **Ladezeiten:** Stat-Karten sollten innerhalb von 2–3 Sekunden laden
+- **Performance:** flüssig auf iPhone 11+ und vergleichbaren Android-Geräten
+- **Offline:** Grundnavigation offline, Daten aus letztem Cache
+- **Sprache:** UI initial Deutsch, KI-Antworten in Sprache der Frage
+- **Ladezeiten:** Stat-Karten 2 bis 3 Sekunden, Radar-Chart max. 3 Sekunden
+- **Accessibility:** WCAG AA Kontraste, Screen-Reader-Labels für Stat-Karten
 
 ---
 
-*Dieses Dokument ist die zentrale Referenz für die Entwicklung von Football AI. Bei jedem neuen Feature oder Screen: zuerst die PRD konsultieren.*
+## 15. Konventionen für Claude Code
+
+- Alle neuen Files in TypeScript
+- Komponenten mit `PascalCase`, Hooks mit `useXxx`
+- Farben und Radii nie inline, immer aus `constants/colors.ts` und `constants/theme.ts`
+- Text-Strings nie inline, sondern in einer separaten Konstante pro Screen (bereitet i18n vor)
+- Keine externen UI-Libraries ohne Rücksprache (kein NativeBase, kein Gluestack, kein Tamagui)
+- Sportmonks-Aufrufe niemals direkt aus dem Client, ausschließlich über Supabase Edge Functions
+- Bei Widerspruch zwischen dieser PRD und Obsidian-Docs: Obsidian gewinnt bei Business-Themen, PRD gewinnt bei technischen Themen. Bei technischem Widerspruch mit dem User rückfragen, nicht raten.
+
+---
+
+*Änderungshistorie: Version 2.0 vom 26. Juli 2026 ersetzt Version 1.0 vom 17. März 2026. Wesentliche Änderungen: Tech-Stack-Update (Cursor → VS Code + Claude Code, API-Football → Sportmonks, GPT-4o → Claude Haiku), Positions-Split (MI → OM + DM), Radar-Chart als eigene Sektion, Farbcodes Blau/Rot für Vergleiche, Follow-up-Chat-Flow, Business-Kapitel rausgezogen und auf Obsidian verwiesen.*
