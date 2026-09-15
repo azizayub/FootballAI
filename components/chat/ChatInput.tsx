@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
-import { FontSizes, Radii } from '@/constants/theme';
+import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 
 const STRINGS = {
   placeholder: 'Stelle deine Frage',
-  comparisonOn: 'Spieler Vergleich',
-  comparisonOff: 'Spieler Vergleich',
+  comparison: 'Spieler Vergleich',
 };
 
 interface ChatInputProps {
@@ -18,6 +16,10 @@ interface ChatInputProps {
   onToggleComparison: () => void;
 }
 
+/**
+ * Frage-Karte aus Figma Node 1:145 (170 px hoch, transluzentes Weiss).
+ * Die Pill stammt im Design aus dem Material-3-Kit (Node 205:864).
+ */
 export function ChatInput({
   value,
   onChangeText,
@@ -25,33 +27,34 @@ export function ChatInput({
   comparisonMode,
   onToggleComparison,
 }: ChatInputProps) {
-  const [height, setHeight] = useState(0);
   const canSend = value.trim().length > 0;
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={[styles.input, { height: Math.min(Math.max(44, height), 120) }]}
+        style={styles.input}
         value={value}
         onChangeText={onChangeText}
-        onContentSizeChange={(e) => setHeight(e.nativeEvent.contentSize.height)}
         placeholder={STRINGS.placeholder}
         placeholderTextColor={Colors.secondaryText}
         multiline
       />
+
       <View style={styles.actionRow}>
         <TouchableOpacity
-          style={[styles.chip, comparisonMode && styles.chipActive]}
+          style={[styles.pill, comparisonMode && styles.pillActive]}
           onPress={onToggleComparison}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityState={{ selected: comparisonMode }}
         >
           <Ionicons
             name={comparisonMode ? 'close' : 'add'}
-            size={14}
-            color={comparisonMode ? Colors.tabActiveText : Colors.primaryText}
+            size={15}
+            color={comparisonMode ? Colors.tabActiveText : Colors.comparePillText}
           />
-          <Text style={[styles.chipText, comparisonMode && styles.chipTextActive]}>
-            {comparisonMode ? STRINGS.comparisonOn : STRINGS.comparisonOff}
+          <Text style={[styles.pillLabel, comparisonMode && styles.pillLabelActive]}>
+            {STRINGS.comparison}
           </Text>
         </TouchableOpacity>
 
@@ -59,9 +62,11 @@ export function ChatInput({
           style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
           onPress={onSend}
           disabled={!canSend}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Frage senden"
         >
-          <Ionicons name="arrow-up" size={18} color={Colors.tabActiveText} />
+          <Ionicons name="arrow-up" size={18} color={Colors.iconButtonIcon} />
         </TouchableOpacity>
       </View>
     </View>
@@ -70,56 +75,56 @@ export function ChatInput({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.inputBackground,
+    height: 170,
     borderRadius: Radii.card,
-    paddingHorizontal: 14,
-    paddingTop: 8,
-    paddingBottom: 10,
+    backgroundColor: Colors.glassCard,
+    paddingHorizontal: Spacing.cardPaddingX,
+    paddingTop: Spacing.cardPaddingY,
+    paddingBottom: 12,
   },
   input: {
+    flex: 1,
     color: Colors.primaryText,
+    fontFamily: Fonts.interMedium,
     fontSize: FontSizes.body,
+    padding: 0,
     textAlignVertical: 'top',
-    paddingTop: 6,
   },
   actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 6,
   },
-  chip: {
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    gap: 8,
+    height: 32,
+    paddingHorizontal: 16,
     borderRadius: Radii.pill,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.searchBackground,
+    backgroundColor: Colors.comparePillBackground,
   },
-  chipActive: {
+  pillActive: {
     backgroundColor: Colors.tabActive,
-    borderColor: Colors.tabActive,
   },
-  chipText: {
-    color: Colors.primaryText,
-    fontSize: FontSizes.statLabel + 1,
-    fontWeight: '500',
+  pillLabel: {
+    color: Colors.comparePillText,
+    fontFamily: Fonts.interMedium,
+    fontSize: FontSizes.comparePill,
+    letterSpacing: 0.1,
   },
-  chipTextActive: {
+  pillLabelActive: {
     color: Colors.tabActiveText,
   },
   sendButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: Colors.tabActive,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.iconButtonBackground,
   },
   sendButtonDisabled: {
-    opacity: 0.35,
+    opacity: 0.4,
   },
 });

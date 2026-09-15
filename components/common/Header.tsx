@@ -1,28 +1,43 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
-import { FontSizes } from '@/constants/theme';
+import { Fonts, FontSizes, Spacing } from '@/constants/theme';
+
+const AVATAR_SIZE = 50;
 
 interface HeaderProps {
   profileImageUri?: string;
+  onPressProfile?: () => void;
 }
 
-export function Header({ profileImageUri }: HeaderProps) {
+/**
+ * Kopfzeile aus Figma Node 1:82.
+ * Das Logo ist im Design bewusst weiter eingerueckt (44 px) als der restliche
+ * Inhalt (28 px); Logo und Avatar sind auf derselben Mittelachse.
+ */
+export function Header({ profileImageUri, onPressProfile }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
       <View style={styles.logo}>
         <Text style={styles.logoFootball}>Football</Text>
-        <Text style={styles.logoAI}> AI</Text>
+        <Text style={styles.logoAI}>AI</Text>
       </View>
-      <View style={styles.profileContainer}>
+
+      <TouchableOpacity
+        style={styles.avatar}
+        onPress={onPressProfile}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Profil"
+      >
         {profileImageUri ? (
-          <Image source={{ uri: profileImageUri }} style={styles.profileImage} />
+          <Image source={{ uri: profileImageUri }} style={styles.avatarImage} />
         ) : (
-          <View style={styles.profilePlaceholder} />
+          <View style={styles.avatarPlaceholder} />
         )}
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -32,40 +47,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingLeft: Spacing.logoInset,
+    paddingRight: Spacing.screen,
     paddingBottom: 12,
     backgroundColor: Colors.background,
   },
   logo: {
     flexDirection: 'row',
     alignItems: 'baseline',
+    gap: 6,
   },
   logoFootball: {
-    fontSize: FontSizes.logoText,
-    fontWeight: '300',
-    color: Colors.secondaryText,
+    fontFamily: Fonts.interRegular,
+    fontSize: FontSizes.logoHeader,
+    color: Colors.logoMuted,
   },
   logoAI: {
-    fontSize: FontSizes.logoText,
-    fontWeight: '700',
-    fontStyle: 'italic',
+    fontFamily: Fonts.interItalic,
+    fontSize: FontSizes.logoHeader,
     color: Colors.primaryText,
   },
-  profileContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  avatar: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
+    borderRadius: AVATAR_SIZE / 2,
     overflow: 'hidden',
   },
-  profileImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  avatarImage: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
   },
-  profilePlaceholder: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  avatarPlaceholder: {
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
     backgroundColor: Colors.cardBackground,
   },
 });

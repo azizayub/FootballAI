@@ -246,45 +246,104 @@ Bei Tap auf Karten-Body: Navigation zum Player Detail Screen.
 
 ## 6. Design-System
 
+> **Single Source of Truth ist die Figma-Datei „Football AI":**
+> https://www.figma.com/design/FhfNURvKqq9mkpc7y2feLg/Football-AI
+> Opening Screen = Node `1:9`, Home Screen = Node `1:82`. Frame-Groesse 430x932
+> (iPhone 15 Pro, logische Punkte). Alle Werte unten sind aus diesen Nodes
+> ausgelesen und liegen im Code in `constants/colors.ts` und `constants/theme.ts`.
+> Bei Abweichungen gilt Figma, nicht diese Tabelle.
+
 ### 6.1 Farbschema (Dark Mode only)
 
-| Element | Farbe | Hex |
+Das Design arbeitet mit **transluzenten Weiss-Overlays auf Schwarz**, nicht mit
+festen Grautoenen. Deshalb sind mehrere Werte `rgba` statt Hex.
+
+| Element | Farbe | Figma-Node |
 |---|---|---|
-| Hintergrund App | Schwarz | `#000000` |
-| Karten-Hintergrund | Dunkelgrau | `#1C1C1E` |
-| Suchleiste-Hintergrund | Dunkelgrau | `#2C2C2E` |
-| Primärtext | Weiß | `#FFFFFF` |
-| Sekundärtext | Grau | `#8E8E93` |
-| Rating-Badge | Grün | `#34C759` |
-| **Vergleich Spieler A** | **Blau** | **`#3B82F6`** |
-| **Vergleich Spieler B** | **Rot** | **`#EF4444`** |
-| Ranking Platz 1 | Rot | `#FF3B30` |
-| Ranking Gradient | Rot → Orange → Transparent | `#FF3B30` → `#FF9500` → transparent |
-| Tab aktiv Hintergrund | Weiß | `#FFFFFF` |
-| Tab aktiv Text | Schwarz | `#000000` |
-| Tab inaktiv Text | Grau | `#8E8E93` |
+| Hintergrund App | `#000000` | 1:82 |
+| Suchleiste | `rgba(187,187,187,0.08)` | 1:176 |
+| Frage-Karte | `rgba(255,255,255,0.08)` | 1:145 |
+| Chat-Karten | `#1B1B1B` | 205:4, 205:10, 216:1334 |
+| Primaertext | `#FFFFFF` | — |
+| Sekundaertext | `#888888` | 1:131, 1:177, 205:166 |
+| Logo „Football" | `rgba(255,255,255,0.11)` | 1:17, 202:13 |
+| Logo „AI" | `#FFFFFF` | 202:9, 202:14 |
+| Vergleich-Pill Flaeche | `rgba(0,0,0,0.85)` | 205:865 |
+| Vergleich-Pill Text | `rgba(246,246,246,0.48)` | 205:868 |
+| Icon-Button (rund) | `#FFFFFF`, Glyphe `#1A1A1A` | 205:156, 205:406 |
+| Tab aktiv Flaeche | `#000000`, Text `#FFFFFF` | 216:1282 |
+| Tab inaktiv Text | `#1A1A1A` | 216:1283 |
+| Trenner Suchleiste | `rgba(255,255,255,0.18)` | 1:178 |
+
+Die Vergleichs- und Ranking-Farben (Blau `#3B82F6`, Rot `#EF4444`, Ranking-Rot
+`#FF3B30` bis Orange `#FF9500`) sind im Figma noch nicht designt und bleiben bis
+dahin als Platzhalter in `constants/colors.ts`.
 
 ### 6.2 Typografie
 
-| Element | Gewicht | Größe (Richtwert) |
+Das Design nutzt vier Schriften. Inter, Instrument Serif und Roboto kommen ueber
+`@expo-google-fonts/*` und werden in `app/_layout.tsx` per `useFonts` geladen;
+SF Pro ist die iOS-Systemschrift und faellt auf Android auf Roboto zurueck.
+
+| Element | Schrift | Groesse |
 |---|---|---|
-| App-Logo „Football" | Light | 20 bis 24 px |
-| App-Logo „AI" | Bold Italic | 20 bis 24 px |
-| Begrüßung „Hi {Name}" | Bold | 24 bis 28 px |
-| Section-Titel | Bold | 18 bis 20 px |
-| Spielername (Karten) | Bold | 16 bis 18 px |
-| Body-Text | Regular | 14 bis 16 px |
-| Stat-Label | Regular | 10 bis 12 px |
-| Stat-Werte | Bold | 16 bis 20 px |
+| Logo Splash | Inter Regular / Italic | 44 px |
+| Logo Header | Inter Regular / Italic | 25 px |
+| Begruessung „Hi {Name}" | **Instrument Serif Italic** | 40 px |
+| Unterzeile Begruessung | Inter Medium | 16 px |
+| Section-Titel („Deine Chats") | Inter SemiBold | 18 px |
+| Chat-Karten-Titel | Inter SemiBold | 16 px |
+| Frage-Platzhalter | Inter Medium | 16 px |
+| Suchleiste, „Siehe alle" | Roboto Medium | 16 px |
+| Vergleich-Pill | Inter Medium | 13 px, Tracking 0.1 |
+| Tab-Label | SF Pro Medium | 14 px |
 
-System Font: SF Pro (iOS) / Roboto (Android) via React Native Defaults.
+### 6.3 Masse und Abstaende
 
-### 6.3 Allgemeine Design-Regeln
+Die Abstaende im Figma schwanken (28/33 px Seitenrand, 18/21/31 px Innenabstand).
+Im Code sind sie auf ein **4er-Raster** normalisiert — optisch identisch, aber
+konsistent fuer alle kuenftigen Screens.
 
-- Dark Mode only, kein Light Mode
-- Border-Radius Karten und Buttons: 12 bis 16 px
-- Minimalistisch, viel Blackspace, keine überflüssigen Elemente
-- Kein Scout-Jargon in Labels, alle Stats in fanverständlicher Sprache
+| Token | Wert |
+|---|---|
+| Seitenrand Inhalt | 28 px |
+| Seitenrand Logo (bewusst tiefer eingerueckt) | 44 px |
+| Karten-Innenabstand | 20 px |
+| Abstand zwischen Chat-Karten | 16 px |
+| Suchleiste | H 58, Radius 39 |
+| Frage-Karte | H 170, Radius 15 |
+| Chat-Karte | H 64, Radius 15 |
+| Runder Icon-Button | 36x36, Glyphe 18 px |
+| Avatar Header | 50x50 |
+| Tab-Bar | 210x56, Radius 28; aktive Pill 82x40, Radius 20 |
+
+### 6.4 Allgemeine Design-Regeln
+
+- Dark Mode only, kein Light Mode (`userInterfaceStyle: "dark"`)
+- Transluzente Overlays statt fester Grautoene
+- Die Tab-Bar nutzt Apples **Liquid Glass** (`expo-glass-effect`) — ab iOS 26
+  nativ, sonst `expo-blur` als Ersatz. Siehe `components/common/TabBar.tsx`.
+- Minimalistisch, viel Blackspace, keine ueberfluessigen Elemente
+- Kein Scout-Jargon in Labels, alle Stats in fanverstaendlicher Sprache
+
+### 6.5 Bekannte Abweichungen vom Figma
+
+Bewusste Entscheidungen, die vom File abweichen:
+
+1. **Safe Area:** Im Figma sitzt die Kopfzeile bei y=34 und damit in der
+   Statusleiste. Im Code beginnt sie bei `insets.top + 8`, alles darunter
+   verschiebt sich entsprechend.
+2. **„Siehe alle"** ist im Figma ~10 px tiefer als „Deine Chats"; im Code sind
+   beide auf einer Mittelachse.
+3. **`Ellipse 19`** (Node 205:293) liegt unterhalb des Frames und ist nicht
+   sichtbar — als Leftover verworfen.
+4. **Zweites Icon** (`StarsFilled`) in der Vergleich-Pill liegt im Figma ueber
+   dem Label und ist nicht sichtbar — weggelassen.
+5. **Avatar** ist im Figma ein Pexels-Stockfoto in rotierter Maske — im Code ein
+   Platzhalterkreis, bis es echte Profilbilder gibt.
+6. **Der Pfeil-Button der Suchleiste** liegt im Figma bei x=378 und ragt damit
+   rechnerisch aus der Pill heraus; im Code sitzt er wie im Screenshot 12 px
+   innerhalb des rechten Rands (analog zum Senden-Button der Frage-Karte).
 
 ---
 

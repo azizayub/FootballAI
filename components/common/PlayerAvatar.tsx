@@ -1,6 +1,5 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { Colors } from '@/constants/colors';
-import { Radii } from '@/constants/theme';
 
 interface PlayerAvatarProps {
   uri: string;

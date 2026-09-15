@@ -2,22 +2,25 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/colors';
+import { Fonts, FontSizes } from '@/constants/theme';
 
-export default function SplashScreen() {
+/**
+ * Opening Screen - Figma Node 1:9.
+ * Logo sitzt nicht exakt mittig, sondern 78 px oberhalb der Frame-Mitte.
+ */
+export default function OpeningScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('/(tabs)');
-    }, 2500);
+    const timer = setTimeout(() => router.replace('/(tabs)'), 2500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [router]);
 
   return (
     <View style={styles.container}>
       <View style={styles.logoRow}>
         <Text style={styles.logoFootball}>Football</Text>
-        <Text style={styles.logoAI}> AI</Text>
+        <Text style={styles.logoAI}>AI</Text>
       </View>
     </View>
   );
@@ -33,16 +36,17 @@ const styles = StyleSheet.create({
   logoRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
+    gap: 11,
+    marginBottom: 157, // 2 x 78.5 px Versatz nach oben gegenueber der Mitte
   },
   logoFootball: {
-    fontSize: 32,
-    fontWeight: '300',
-    color: Colors.secondaryText,
+    fontFamily: Fonts.interRegular,
+    fontSize: FontSizes.logoSplash,
+    color: Colors.logoMuted,
   },
   logoAI: {
-    fontSize: 32,
-    fontWeight: '700',
-    fontStyle: 'italic',
+    fontFamily: Fonts.interItalic,
+    fontSize: FontSizes.logoSplash,
     color: Colors.primaryText,
   },
 });

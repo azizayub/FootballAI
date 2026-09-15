@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
-import { FontSizes, Radii } from '@/constants/theme';
+import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 import { PlayerAvatar } from './PlayerAvatar';
 
 interface SearchBarProps {
@@ -11,6 +11,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
+/** Suchleiste aus Figma Node 1:176 - Pill, 58 px hoch, Radius 39. */
 export function SearchBar({
   value,
   onChangeText,
@@ -29,8 +30,14 @@ export function SearchBar({
         onSubmitEditing={onSubmit}
       />
       <View style={styles.divider} />
-      <TouchableOpacity style={styles.button} onPress={onSubmit}>
-        <Ionicons name="arrow-forward" size={18} color={Colors.primaryText} />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onSubmit}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel="Suchen"
+      >
+        <Ionicons name="arrow-forward" size={18} color={Colors.iconButtonIcon} />
       </TouchableOpacity>
     </View>
   );
@@ -40,28 +47,33 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: 58,
+    marginHorizontal: Spacing.screen,
+    paddingLeft: Spacing.screen,
+    paddingRight: 12,
+    borderRadius: Radii.searchBar,
     backgroundColor: Colors.searchBackground,
-    borderRadius: Radii.card,
-    marginHorizontal: 20,
-    height: 48,
   },
   input: {
     flex: 1,
     color: Colors.primaryText,
+    fontFamily: Fonts.robotoMedium,
     fontSize: FontSizes.body,
-    paddingHorizontal: 16,
+    padding: 0,
   },
   divider: {
     width: 1,
-    height: 24,
-    backgroundColor: Colors.secondaryText,
-    opacity: 0.3,
+    height: 32,
+    backgroundColor: Colors.divider,
   },
   button: {
-    width: 48,
-    height: 48,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginLeft: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.iconButtonBackground,
   },
 });
 
@@ -106,9 +118,9 @@ export function PlayerSearchDropdown({ results, onSelect }: PlayerSearchDropdown
 
 const dropdownStyles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
+    marginHorizontal: Spacing.screen,
     marginTop: 8,
-    backgroundColor: Colors.searchBackground,
+    backgroundColor: Colors.cardBackground,
     borderRadius: Radii.card,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -118,8 +130,8 @@ const dropdownStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: Spacing.cardPaddingX,
+    paddingVertical: 12,
   },
   rowBorder: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -127,12 +139,12 @@ const dropdownStyles = StyleSheet.create({
   },
   info: {
     flex: 1,
-    gap: 3,
+    gap: 4,
   },
   name: {
     color: Colors.primaryText,
-    fontSize: FontSizes.playerName,
-    fontWeight: '700',
+    fontFamily: Fonts.interSemiBold,
+    fontSize: FontSizes.body,
   },
   metaRow: {
     flexDirection: 'row',

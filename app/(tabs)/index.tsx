@@ -14,7 +14,7 @@ import { Header } from '@/components/common/Header';
 import { PlayerSearchDropdown, SearchBar } from '@/components/common/SearchBar';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { Colors } from '@/constants/colors';
-import { FontSizes, Radii } from '@/constants/theme';
+import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 import { DUMMY_CHATS, DUMMY_SEARCH_PLAYERS } from '@/constants/dummyData';
 
 const STRINGS = {
@@ -26,6 +26,7 @@ const STRINGS = {
 
 const USER_NAME = 'Aziz';
 
+/** Home Screen - Figma Node 1:82. */
 export default function HomeScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -56,7 +57,10 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Header />
-      <SearchBar value={search} onChangeText={setSearch} />
+
+      <View style={styles.searchSlot}>
+        <SearchBar value={search} onChangeText={setSearch} />
+      </View>
 
       <View style={styles.body}>
         <ScrollView
@@ -64,12 +68,11 @@ export default function HomeScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.greetingBlock}>
-            <Text style={styles.greeting}>{STRINGS.greeting(USER_NAME)}</Text>
-            <Text style={styles.subGreeting}>{STRINGS.subGreeting}</Text>
-          </View>
+          <Text style={styles.greeting}>{STRINGS.greeting(USER_NAME)}</Text>
+          <Text style={styles.subGreeting}>{STRINGS.subGreeting}</Text>
 
           <KeyboardAvoidingView
+            style={styles.questionSlot}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
             <ChatInput
@@ -125,59 +128,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  searchSlot: {
+    marginTop: 44,
+  },
   body: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-  greetingBlock: {
-    marginTop: 28,
-    marginBottom: 20,
-    gap: 4,
+    paddingHorizontal: Spacing.screen,
+    paddingBottom: 120, // Platz fuer die schwebende Tab-Bar
   },
   greeting: {
+    marginTop: 32,
     color: Colors.primaryText,
+    fontFamily: Fonts.serifItalic,
     fontSize: FontSizes.greeting,
-    fontWeight: '700',
   },
   subGreeting: {
+    marginTop: 12,
     color: Colors.secondaryText,
-    fontSize: FontSizes.body + 2,
+    fontFamily: Fonts.interMedium,
+    fontSize: FontSizes.subGreeting,
+  },
+  questionSlot: {
+    marginTop: 36,
   },
   chatsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 32,
-    marginBottom: 12,
+    marginTop: 52,
+    marginBottom: 16,
   },
   chatsTitle: {
     color: Colors.primaryText,
+    fontFamily: Fonts.interSemiBold,
     fontSize: FontSizes.sectionTitle,
-    fontWeight: '700',
   },
   seeAll: {
     color: Colors.secondaryText,
+    fontFamily: Fonts.robotoMedium,
     fontSize: FontSizes.body,
   },
   chatList: {
-    gap: 10,
+    gap: 16,
   },
   chatCard: {
-    backgroundColor: Colors.cardBackground,
+    height: 64,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.cardPaddingX,
     borderRadius: Radii.card,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.cardBackground,
   },
   chatTitle: {
-    color: Colors.primaryText,
-    fontSize: FontSizes.body + 1,
-    fontWeight: '500',
+    color: Colors.secondaryText,
+    fontFamily: Fonts.interSemiBold,
+    fontSize: FontSizes.body,
   },
   overlayBackdrop: {
-    ...StyleSheet.absoluteFill,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   overlayDropdown: {
