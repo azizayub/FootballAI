@@ -1,10 +1,17 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { Tabs } from 'expo-router';
 import { Colors } from '@/constants/colors';
 import { FontSizes, Radii } from '@/constants/theme';
 
-export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+// expo-router bringt seit SDK 57 eigene Bottom-Tabs-Typen mit, die nicht mehr
+// deckungsgleich mit denen aus @react-navigation/bottom-tabs sind. Den Prop-Typ
+// deshalb aus dem Navigator selbst ableiten statt ihn direkt zu importieren.
+type TabBarProps = Parameters<
+  NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
+>[0];
+
+export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
