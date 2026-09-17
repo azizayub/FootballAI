@@ -26,6 +26,9 @@ interface GlassSurfaceProps {
   /** Tint fuer echtes Liquid Glass. Deutlich dunkler als der Fallback-Fill,
    *  weil das Material selbst schon aufhellt. */
   tint?: string;
+  /** Nur setzen, wenn die Flaeche selbst auf Beruehrung reagiert (Apple:
+   *  ".interactive() only on elements that respond to user interaction"). */
+  interactive?: boolean;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
 }
@@ -40,6 +43,7 @@ export function GlassSurface({
   radius,
   fill = Colors.glassCard,
   tint = Colors.glassTint,
+  interactive = false,
   style,
   contentStyle,
 }: GlassSurfaceProps) {
@@ -57,6 +61,7 @@ export function GlassSurface({
           style={[styles.inner, { borderRadius: innerRadius }, contentStyle]}
           glassEffectStyle="clear"
           tintColor={tint}
+          isInteractive={interactive}
         >
           {children}
         </GlassView>

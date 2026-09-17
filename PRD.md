@@ -334,6 +334,12 @@ konsistent fuer alle kuenftigen Screens.
 - **Tab-Bar:** Die Kapsel ist **weiss** mit leichtem Verlauf. Glas steckt nur im
   **Slider**, der beim Tab-Wechsel auf den aktiven Eintrag wandert (260 ms).
   Siehe `components/common/TabBar.tsx`.
+- **`isInteractive` nur auf Flaechen**, die selbst Eingaben entgegennehmen
+  (Suchleiste, Frage-Karte) — nicht auf dekorative Flaechen wie den
+  Tab-Slider. Entspricht Apples Regel fuer `.interactive()`.
+- **Kein opaker Hintergrund direkt hinter Glas.** Glas bricht, was dahinter
+  liegt; auf reinem Schwarz hat es nichts zu brechen. Genau deshalb braucht
+  jede Flaeche den Lichtsaum an der Kante.
 - **Runde Icon-Buttons sind immer weiss** — auch wenn die Aktion gerade nicht
   moeglich ist. Kein ausgegrauter Disabled-Zustand.
 - Minimalistisch, viel Blackspace, keine ueberfluessigen Elemente

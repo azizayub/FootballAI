@@ -24,6 +24,7 @@ export function SearchBar({
     <GlassSurface
       radius={Radii.searchBar}
       fill={Colors.searchBackground}
+      interactive
       style={styles.container}
       contentStyle={styles.content}
     >

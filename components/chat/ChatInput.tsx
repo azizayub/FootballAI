@@ -35,6 +35,7 @@ export function ChatInput({
     <GlassSurface
       radius={Radii.card}
       fill={Colors.glassCard}
+      interactive
       style={styles.container}
       contentStyle={styles.content}
     >
