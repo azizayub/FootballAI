@@ -37,10 +37,11 @@ export const TAB_BAR_BOTTOM_GAP = v(8);
  *
  * Aufbau von hinten nach vorn:
  *   1. weisse Kapsel mit leichtem Verlauf
- *   2. schwarze Pille - **fix** auf der linken Seite, gehoert zur Optik von
- *      "Home" und wandert nicht mit
- *   3. Glas-Slider ueber voller Hoehe - wandert auf den aktiven Tab und zeigt
+ *   2. Glas-Slider ueber voller Hoehe - wandert auf den aktiven Tab und zeigt
  *      damit an, wo man ist
+ *   3. schwarze Pille - **fix** auf der linken Seite, gehoert zur Optik von
+ *      "Home" und wandert nicht mit; liegt vor dem Slider, damit das Glas sie
+ *      nicht bricht
  *   4. Beschriftungen
  */
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
@@ -68,9 +69,6 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
         end={{ x: 0.8, y: 1 }}
         style={styles.capsule}
       >
-        {/* Fix - markiert "Home", unabhaengig vom aktiven Tab. */}
-        <View style={styles.homePill} pointerEvents="none" />
-
         {/* Wandert auf den aktiven Tab. */}
         <Animated.View style={[styles.slider, sliderStyle]} pointerEvents="none">
           {supportsLiquidGlass ? (
@@ -83,6 +81,12 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
             <View style={[styles.sliderSurface, styles.sliderFallback]} />
           )}
         </Animated.View>
+
+        {/* Fix - markiert "Home", unabhaengig vom aktiven Tab.
+            Liegt VOR dem Slider: Liquid Glass bricht und vergroessert alles
+            dahinter, die Pille wuerde sonst auf Slider-Groesse aufgezogen und
+            aufgehellt. Reihenfolge wie im Figma (216:1282 ueber 216:1281). */}
+        <View style={styles.homePill} pointerEvents="none" />
 
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];

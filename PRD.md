@@ -342,6 +342,10 @@ konsistent fuer alle kuenftigen Screens.
     Figma ausgeblendet) wandert auf den aktiven Tab und zeigt an, wo man ist
   Die Textfarben haengen deshalb an der festen Pille, nicht an der Auswahl:
   „Home" steht immer weiss auf Schwarz, „Rankings" immer dunkel auf Weiss.
+  **Stapelreihenfolge beachten:** die schwarze Pille liegt *vor* dem Slider
+  (wie im Figma 216:1282 ueber 216:1281). Liquid Glass bricht und vergroessert
+  alles dahinter — liegt die Pille darunter, wird sie auf Slider-Groesse
+  aufgezogen und grau.
   Siehe `components/common/TabBar.tsx`.
 - **`isInteractive` nur auf Flaechen**, die selbst Eingaben entgegennehmen
   (Suchleiste, Frage-Karte) — nicht auf dekorative Flaechen wie den
