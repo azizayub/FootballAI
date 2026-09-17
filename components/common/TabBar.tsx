@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -13,9 +13,14 @@ type TabBarProps = Parameters<
   NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
 >[0];
 
-// Das Figma nutzt Apples "Button - Liquid Glass - Text" (iOS 26). Wo das native
-// Material verfuegbar ist, wird es benutzt - sonst BlurView als Ersatz.
+// Das Figma nutzt Apples "Button - Liquid Glass - Text" (iOS 26) in der Variante
+// mode="Light". Liquid Glass ist adaptiv und bricht den Hintergrund - auf dem
+// schwarzen App-Hintergrund waere es also dunkel. Der helle Look aus dem Design
+// muss deshalb ueber tintColor erzwungen werden.
 const supportsLiquidGlass = isLiquidGlassAvailable();
+
+// Abstand der Bar zur Home-Indicator-Kante.
+const BOTTOM_GAP = 8;
 
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
@@ -54,13 +59,23 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   });
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom }]} pointerEvents="box-none">
+    <View
+      style={[styles.wrapper, { paddingBottom: insets.bottom + BOTTOM_GAP }]}
+      pointerEvents="box-none"
+    >
       {supportsLiquidGlass ? (
-        <GlassView style={styles.surface} glassEffectStyle="regular" colorScheme="light">
+        <GlassView
+          style={styles.surface}
+          glassEffectStyle="regular"
+          colorScheme="light"
+          tintColor={Colors.tabBarTint}
+        >
           {tabs}
         </GlassView>
       ) : (
-        <BlurView style={styles.surface} tint="light" intensity={Platform.OS === 'android' ? 0 : 60}>
+        // Ohne natives Liquid Glass (Android, iOS < 26, Expo Go ohne Dev Build)
+        // wird der helle Frost-Look mit BlurView plus Tint nachgebaut.
+        <BlurView style={styles.surface} tint="systemThickMaterialLight" intensity={80}>
           <View style={styles.fallbackTint} pointerEvents="none" />
           {tabs}
         </BlurView>
@@ -68,6 +83,10 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
     </View>
   );
 }
+
+/** Gesamthoehe, die der Inhalt unter sich frei lassen muss. */
+export const TAB_BAR_HEIGHT = 56;
+export const TAB_BAR_BOTTOM_GAP = BOTTOM_GAP;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -81,13 +100,17 @@ const styles = StyleSheet.create({
   surface: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 56,
+    height: TAB_BAR_HEIGHT,
     padding: 8,
     borderRadius: Radii.tabBar,
     overflow: 'hidden',
   },
   fallbackTint: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: Colors.tabBarFallback,
   },
   tab: {
@@ -98,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tabActive: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.tabActivePill,
   },
   tabLabel: {
     fontFamily: Fonts.sfProMedium,

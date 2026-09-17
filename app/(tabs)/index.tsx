@@ -10,9 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Header } from '@/components/common/Header';
 import { PlayerSearchDropdown, SearchBar } from '@/components/common/SearchBar';
 import { ChatInput } from '@/components/chat/ChatInput';
+import { TAB_BAR_BOTTOM_GAP, TAB_BAR_HEIGHT } from '@/components/common/TabBar';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 import { DUMMY_CHATS, DUMMY_SEARCH_PLAYERS } from '@/constants/dummyData';
@@ -29,6 +31,7 @@ const USER_NAME = 'Aziz';
 /** Home Screen - Figma Node 1:82. */
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
   const [comparisonMode, setComparisonMode] = useState(false);
@@ -64,7 +67,11 @@ export default function HomeScreen() {
 
       <View style={styles.body}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            // Platz fuer die schwebende Tab-Bar inklusive Safe Area.
+            { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + TAB_BAR_BOTTOM_GAP + 32 },
+          ]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -136,7 +143,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: Spacing.screen,
-    paddingBottom: 120, // Platz fuer die schwebende Tab-Bar
   },
   greeting: {
     marginTop: 32,

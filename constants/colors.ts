@@ -24,8 +24,12 @@ export const Colors = {
   // Tab-Bar (Node 216:1280-1283, Apple iOS-26-Kit)
   tabActive: '#FFFFFF',
   tabActiveText: '#000000',
+  tabActivePill: '#000000',               // aktive Pill (Node 216:1282, tinted)
   tabInactiveText: '#1A1A1A',             // Labels-Vibrant-Controls/Primary
-  tabBarFallback: 'rgba(235,235,235,0.72)', // wenn Liquid Glass nicht verfuegbar
+  // Liquid Glass ist adaptiv und waere auf Schwarz dunkel - der helle Look aus
+  // dem Figma wird deshalb ueber einen Tint erzwungen.
+  tabBarTint: 'rgba(238,238,238,0.60)',
+  tabBarFallback: 'rgba(238,238,238,0.55)', // wenn Liquid Glass nicht verfuegbar
 
   // Runde Icon-Buttons (Node 205:156 / 205:406)
   iconButtonBackground: '#FFFFFF',
