@@ -19,7 +19,7 @@ export function Header({ profileImageUri, onPressProfile }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.logo}>
         <Text style={styles.logoFootball}>Football</Text>
         <Text style={styles.logoAI}>AI</Text>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: Spacing.logoInset,
     paddingRight: Spacing.screen,
-    paddingBottom: 12,
+    paddingBottom: 8,
     backgroundColor: Colors.background,
   },
   logo: {

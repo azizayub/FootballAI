@@ -2,6 +2,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
+import { GlassSurface } from '@/components/common/GlassSurface';
 
 const STRINGS = {
   placeholder: 'Stelle deine Frage',
@@ -30,7 +31,12 @@ export function ChatInput({
   const canSend = value.trim().length > 0;
 
   return (
-    <View style={styles.container}>
+    <GlassSurface
+      radius={Radii.card}
+      fill={Colors.glassCard}
+      style={styles.container}
+      contentStyle={styles.content}
+    >
       <TextInput
         style={styles.input}
         value={value}
@@ -59,7 +65,7 @@ export function ChatInput({
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.sendButton, !canSend && styles.sendButtonDisabled]}
+          style={styles.sendButton}
           onPress={onSend}
           disabled={!canSend}
           activeOpacity={0.8}
@@ -69,18 +75,18 @@ export function ChatInput({
           <Ionicons name="arrow-up" size={18} color={Colors.iconButtonIcon} />
         </TouchableOpacity>
       </View>
-    </View>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     height: 170,
-    borderRadius: Radii.card,
-    backgroundColor: Colors.glassCard,
-    paddingHorizontal: Spacing.cardPaddingX,
-    paddingTop: Spacing.cardPaddingY,
-    paddingBottom: 12,
+  },
+  content: {
+    paddingHorizontal: Spacing.cardPaddingX - 1,
+    paddingTop: Spacing.cardPaddingY - 1,
+    paddingBottom: 11,
   },
   input: {
     flex: 1,
@@ -123,8 +129,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.iconButtonBackground,
-  },
-  sendButtonDisabled: {
-    opacity: 0.4,
   },
 });

@@ -1,7 +1,9 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
-import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii } from '@/constants/theme';
@@ -13,80 +15,115 @@ type TabBarProps = Parameters<
   NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
 >[0];
 
-// Das Figma nutzt Apples "Button - Liquid Glass - Text" (iOS 26) in der Variante
-// mode="Light". Liquid Glass ist adaptiv und bricht den Hintergrund - auf dem
-// schwarzen App-Hintergrund waere es also dunkel. Der helle Look aus dem Design
-// muss deshalb ueber tintColor erzwungen werden.
 const supportsLiquidGlass = isLiquidGlassAvailable();
 
-// Abstand der Bar zur Home-Indicator-Kante.
-const BOTTOM_GAP = 8;
+export const TAB_BAR_HEIGHT = 56;
+export const TAB_BAR_BOTTOM_GAP = 8;
 
+const INNER_PADDING = 8;
+const SLIDER_HEIGHT = TAB_BAR_HEIGHT - INNER_PADDING * 2;
+
+type TabLayout = { x: number; width: number };
+
+/**
+ * Tab-Bar aus Figma Node 216:1280-1283.
+ * Die Kapsel ist weiss; Liquid Glass steckt nur im Slider, der beim Wechsel
+ * auf den aktiven Tab wandert.
+ */
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const [layouts, setLayouts] = useState<Record<number, TabLayout>>({});
 
-  const tabs = state.routes.map((route, index) => {
-    const { options } = descriptors[route.key];
-    const label = (options.title ?? route.name) as string;
-    const isFocused = state.index === index;
+  const sliderX = useSharedValue(0);
+  const sliderWidth = useSharedValue(0);
+  const activeLayout = layouts[state.index];
 
-    const onPress = () => {
-      const event = navigation.emit({
-        type: 'tabPress',
-        target: route.key,
-        canPreventDefault: true,
-      });
-      if (!isFocused && !event.defaultPrevented) {
-        navigation.navigate(route.name, route.params);
-      }
-    };
+  useEffect(() => {
+    if (!activeLayout) return;
+    const config = { duration: 260 };
+    sliderX.value = withTiming(activeLayout.x, config);
+    sliderWidth.value = withTiming(activeLayout.width, config);
+  }, [activeLayout, sliderX, sliderWidth]);
 
-    return (
-      <TouchableOpacity
-        key={route.key}
-        onPress={onPress}
-        style={[styles.tab, isFocused && styles.tabActive]}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityState={isFocused ? { selected: true } : {}}
-        accessibilityLabel={label}
-      >
-        <Text style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive]}>
-          {label}
-        </Text>
-      </TouchableOpacity>
-    );
-  });
+  const sliderStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: sliderX.value }],
+    width: sliderWidth.value,
+  }));
+
+  const handleLayout = (index: number) => (event: LayoutChangeEvent) => {
+    const { x, width } = event.nativeEvent.layout;
+    setLayouts((prev) => {
+      const known = prev[index];
+      if (known && known.x === x && known.width === width) return prev;
+      return { ...prev, [index]: { x, width } };
+    });
+  };
 
   return (
     <View
-      style={[styles.wrapper, { paddingBottom: insets.bottom + BOTTOM_GAP }]}
+      style={[styles.wrapper, { paddingBottom: insets.bottom + TAB_BAR_BOTTOM_GAP }]}
       pointerEvents="box-none"
     >
-      {supportsLiquidGlass ? (
-        <GlassView
-          style={styles.surface}
-          glassEffectStyle="regular"
-          colorScheme="light"
-          tintColor={Colors.tabBarTint}
-        >
-          {tabs}
-        </GlassView>
-      ) : (
-        // Ohne natives Liquid Glass (Android, iOS < 26, Expo Go ohne Dev Build)
-        // wird der helle Frost-Look mit BlurView plus Tint nachgebaut.
-        <BlurView style={styles.surface} tint="systemThickMaterialLight" intensity={80}>
-          <View style={styles.fallbackTint} pointerEvents="none" />
-          {tabs}
-        </BlurView>
-      )}
+      <LinearGradient
+        colors={[Colors.tabBarCapsuleTop, Colors.tabBarCapsuleBottom]}
+        start={{ x: 0.2, y: 0 }}
+        end={{ x: 0.8, y: 1 }}
+        style={styles.capsule}
+      >
+        {activeLayout ? (
+          <Animated.View style={[styles.slider, sliderStyle]} pointerEvents="none">
+            {supportsLiquidGlass ? (
+              <GlassView
+                style={styles.sliderSurface}
+                glassEffectStyle="regular"
+                colorScheme="dark"
+                tintColor={Colors.tabSliderTint}
+              />
+            ) : (
+              <View style={[styles.sliderSurface, styles.sliderFallback]} />
+            )}
+          </Animated.View>
+        ) : null}
+
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label = (options.title ?? route.name) as string;
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params);
+            }
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={onPress}
+              onLayout={handleLayout(index)}
+              style={styles.tab}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={label}
+            >
+              <Text
+                style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </LinearGradient>
     </View>
   );
 }
-
-/** Gesamthoehe, die der Inhalt unter sich frei lassen muss. */
-export const TAB_BAR_HEIGHT = 56;
-export const TAB_BAR_BOTTOM_GAP = BOTTOM_GAP;
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -97,31 +134,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
-  surface: {
+  capsule: {
     flexDirection: 'row',
     alignItems: 'center',
     height: TAB_BAR_HEIGHT,
-    padding: 8,
+    padding: INNER_PADDING,
     borderRadius: Radii.tabBar,
+  },
+  slider: {
+    position: 'absolute',
+    top: INNER_PADDING,
+    left: 0,
+    height: SLIDER_HEIGHT,
+  },
+  sliderSurface: {
+    flex: 1,
+    borderRadius: Radii.tabPill,
     overflow: 'hidden',
   },
-  fallbackTint: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: Colors.tabBarFallback,
+  sliderFallback: {
+    backgroundColor: Colors.tabActivePill,
   },
   tab: {
-    height: 40,
+    height: SLIDER_HEIGHT,
     paddingHorizontal: 20,
-    borderRadius: Radii.tabPill,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  tabActive: {
-    backgroundColor: Colors.tabActivePill,
   },
   tabLabel: {
     fontFamily: Fonts.sfProMedium,

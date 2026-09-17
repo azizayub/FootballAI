@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   searchSlot: {
-    marginTop: 44,
+    marginTop: 36,
   },
   body: {
     flex: 1,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.screen,
   },
   greeting: {
-    marginTop: 32,
+    marginTop: 28,
     color: Colors.primaryText,
     fontFamily: Fonts.serifItalic,
     fontSize: FontSizes.greeting,
@@ -157,13 +157,13 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.subGreeting,
   },
   questionSlot: {
-    marginTop: 36,
+    marginTop: 32,
   },
   chatsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 52,
+    marginTop: 44,
     marginBottom: 16,
   },
   chatsTitle: {

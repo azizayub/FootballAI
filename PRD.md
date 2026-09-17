@@ -321,8 +321,16 @@ konsistent fuer alle kuenftigen Screens.
 
 - Dark Mode only, kein Light Mode (`userInterfaceStyle: "dark"`)
 - Transluzente Overlays statt fester Grautoene
-- Die Tab-Bar nutzt Apples **Liquid Glass** (`expo-glass-effect`) — ab iOS 26
-  nativ, sonst `expo-blur` als Ersatz. Siehe `components/common/TabBar.tsx`.
+- **Glasflaechen:** Suchleiste und Frage-Karte sind Liquid Glass
+  (`expo-glass-effect`, ab iOS 26 nativ, sonst `expo-blur`). Liquid Glass ist
+  adaptiv und waere auf Schwarz unsichtbar — deshalb bekommt jede Glasflaeche
+  einen **Lichtsaum auf der Kante** (Verlauf von oben links hell nach unten
+  rechts aus). Zentral in `components/common/GlassSurface.tsx`.
+- **Tab-Bar:** Die Kapsel ist **weiss** mit leichtem Verlauf. Glas steckt nur im
+  **Slider**, der beim Tab-Wechsel auf den aktiven Eintrag wandert (260 ms).
+  Siehe `components/common/TabBar.tsx`.
+- **Runde Icon-Buttons sind immer weiss** — auch wenn die Aktion gerade nicht
+  moeglich ist. Kein ausgegrauter Disabled-Zustand.
 - Minimalistisch, viel Blackspace, keine ueberfluessigen Elemente
 - Kein Scout-Jargon in Labels, alle Stats in fanverstaendlicher Sprache
 
@@ -331,8 +339,10 @@ konsistent fuer alle kuenftigen Screens.
 Bewusste Entscheidungen, die vom File abweichen:
 
 1. **Safe Area:** Im Figma sitzt die Kopfzeile bei y=34 und damit in der
-   Statusleiste. Im Code beginnt sie bei `insets.top + 8`, alles darunter
-   verschiebt sich entsprechend.
+   Statusleiste. Im Code beginnt sie bei `insets.top` (auf aktuellen iPhones
+   ~62 px). Um die Differenz aufzufangen, ist das vertikale Raster gegenueber
+   dem Figma leicht verdichtet (Abstaende 36/28/32/44 statt 58/36/36/52) —
+   sonst wuerde der Inhalt scrollen, obwohl er im Design auf einen Screen passt.
 2. **„Siehe alle"** ist im Figma ~10 px tiefer als „Deine Chats"; im Code sind
    beide auf einer Mittelachse.
 3. **`Ellipse 19`** (Node 205:293) liegt unterhalb des Frames und ist nicht

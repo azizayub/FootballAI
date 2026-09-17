@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
+import { GlassSurface } from './GlassSurface';
 import { PlayerAvatar } from './PlayerAvatar';
 
 interface SearchBarProps {
@@ -19,7 +20,12 @@ export function SearchBar({
   placeholder = 'Spieler suchen',
 }: SearchBarProps) {
   return (
-    <View style={styles.container}>
+    <GlassSurface
+      radius={Radii.searchBar}
+      fill={Colors.searchBackground}
+      style={styles.container}
+      contentStyle={styles.content}
+    >
       <TextInput
         style={styles.input}
         value={value}
@@ -39,20 +45,20 @@ export function SearchBar({
       >
         <Ionicons name="arrow-forward" size={18} color={Colors.iconButtonIcon} />
       </TouchableOpacity>
-    </View>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
     height: 58,
     marginHorizontal: Spacing.screen,
-    paddingLeft: Spacing.screen,
-    paddingRight: 12,
-    borderRadius: Radii.searchBar,
-    backgroundColor: Colors.searchBackground,
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: Spacing.screen - 1,
+    paddingRight: 11,
   },
   input: {
     flex: 1,
