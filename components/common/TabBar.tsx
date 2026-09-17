@@ -4,9 +4,10 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { GlassView } from 'expo-glass-effect';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii } from '@/constants/theme';
+import { supportsLiquidGlass } from './glassSupport';
 
 // expo-router bringt seit SDK 57 eigene Bottom-Tabs-Typen mit, die nicht mehr
 // deckungsgleich mit denen aus @react-navigation/bottom-tabs sind. Den Prop-Typ
@@ -15,7 +16,6 @@ type TabBarProps = Parameters<
   NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
 >[0];
 
-const supportsLiquidGlass = isLiquidGlassAvailable();
 
 export const TAB_BAR_HEIGHT = 56;
 export const TAB_BAR_BOTTOM_GAP = 8;

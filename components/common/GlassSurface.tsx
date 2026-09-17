@@ -2,10 +2,10 @@ import { ReactNode } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { GlassView } from 'expo-glass-effect';
 import { Colors } from '@/constants/colors';
+import { supportsLiquidGlass } from './glassSupport';
 
-const supportsLiquidGlass = isLiquidGlassAvailable();
 
 // Der Lichtsaum laeuft von oben links (hell) nach unten rechts (fast weg) und
 // macht die Glaskante auf schwarzem Hintergrund ueberhaupt erst sichtbar.
