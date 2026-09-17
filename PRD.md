@@ -330,7 +330,10 @@ konsistent fuer alle kuenftigen Screens.
   (`expo-glass-effect`, ab iOS 26 nativ, sonst `expo-blur`). Liquid Glass ist
   adaptiv und waere auf Schwarz unsichtbar — deshalb bekommt jede Glasflaeche
   einen **Lichtsaum auf der Kante** (Verlauf von oben links hell nach unten
-  rechts aus). Zentral in `components/common/GlassSurface.tsx`.
+  rechts aus). Zentral in `components/common/GlassSurface.tsx`. Der Verlauf
+  liegt dort hinter einer deckenden Ebene, sodass nur die 1-px-Kante sichtbar
+  bleibt — sonst scheint er durch das durchsichtige Glas und graut die
+  ganze Flaeche ein.
 - **Tab-Bar:** Die Kapsel ist **weiss** mit leichtem Verlauf. Glas steckt nur im
   **Slider**, der beim Tab-Wechsel auf den aktiven Eintrag wandert (260 ms).
   Siehe `components/common/TabBar.tsx`.
