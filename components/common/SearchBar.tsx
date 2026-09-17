@@ -53,8 +53,9 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
   container: {
+    // Keine eigene Einrueckung - die Suchleiste liegt in der ScrollView des
+    // Screens und bekommt den Seitenrand von dort.
     height: v(58),
-    marginHorizontal: Spacing.screen,
   },
   content: {
     flexDirection: 'row',
