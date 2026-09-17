@@ -72,6 +72,8 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
       <FadeBlur
         edge="bottom"
         height={insets.bottom + TAB_BAR_BOTTOM_GAP + TAB_BAR_HEIGHT + BLUR_OVERHANG}
+        intensity={45}
+        shade={0.22}
       />
 
       <LinearGradient
