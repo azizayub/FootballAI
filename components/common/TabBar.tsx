@@ -9,6 +9,7 @@ import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes } from '@/constants/theme';
 import { v } from '@/constants/layout';
 import { supportsLiquidGlass } from './glassSupport';
+import { FadeBlur } from './FadeBlur';
 
 // expo-router bringt seit SDK 57 eigene Bottom-Tabs-Typen mit, die nicht mehr
 // deckungsgleich mit denen aus @react-navigation/bottom-tabs sind. Den Prop-Typ
@@ -31,6 +32,10 @@ const RANKINGS_TAB_WIDTH = CAPSULE_WIDTH - SLIDER_WIDTH;
 
 export const TAB_BAR_HEIGHT = CAPSULE_HEIGHT;
 export const TAB_BAR_BOTTOM_GAP = v(8);
+
+// Wie weit der Blur ueber die Kapsel hinaus nach oben reicht, bevor er
+// ausblendet - der Inhalt soll nicht hart hinter der Bar abgeschnitten werden.
+const BLUR_OVERHANG = v(56);
 
 /**
  * Tab-Bar aus Figma Node 216:1280-1283.
@@ -63,6 +68,12 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
       style={[styles.wrapper, { paddingBottom: insets.bottom + TAB_BAR_BOTTOM_GAP }]}
       pointerEvents="box-none"
     >
+      {/* Weicher Uebergang, damit scrollender Inhalt hinter der Bar ausblendet. */}
+      <FadeBlur
+        edge="bottom"
+        height={insets.bottom + TAB_BAR_BOTTOM_GAP + TAB_BAR_HEIGHT + BLUR_OVERHANG}
+      />
+
       <LinearGradient
         colors={[Colors.tabBarCapsuleTop, Colors.tabBarCapsuleBottom]}
         start={{ x: 0.2, y: 0 }}
@@ -135,6 +146,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     alignItems: 'center',
+    paddingTop: BLUR_OVERHANG,
     backgroundColor: 'transparent',
   },
   capsule: {

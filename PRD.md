@@ -353,6 +353,11 @@ konsistent fuer alle kuenftigen Screens.
 - **Kein opaker Hintergrund direkt hinter Glas.** Glas bricht, was dahinter
   liegt; auf reinem Schwarz hat es nichts zu brechen. Genau deshalb braucht
   jede Flaeche den Lichtsaum an der Kante.
+- **Weiche Uebergaenge an den Screenkanten:** Oben unter der fixierten
+  Kopfzeile, unten hinter der Tab-Bar blendet scrollender Inhalt unscharf aus
+  statt hart abgeschnitten zu werden (Vorbild: Fotmob). Zentral in
+  `components/common/FadeBlur.tsx` — eine BlurView in einer Verlaufsmaske,
+  weil eine BlurView allein wieder eine harte Kante haette.
 - **Runde Icon-Buttons sind immer weiss** — auch wenn die Aktion gerade nicht
   moeglich ist. Kein ausgegrauter Disabled-Zustand.
 - Minimalistisch, viel Blackspace, keine ueberfluessigen Elemente
