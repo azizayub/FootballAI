@@ -17,8 +17,8 @@ interface HeaderProps {
 /**
  * Kopfzeile aus Figma Node 1:82. Liegt fixiert ueber dem Inhalt, deshalb
  * transparent - die Lesbarkeit kommt vom FadeBlur dahinter.
- * Das Logo ist im Design bewusst weiter eingerueckt (44 px) als der restliche
- * Inhalt (28 px); Logo und Avatar sind auf derselben Mittelachse.
+ * Logo und Avatar sitzen auf derselben Mittelachse und buendig zum restlichen
+ * Seitenrand.
  */
 export function Header({ profileImageUri, onPressProfile }: HeaderProps) {
   const insets = useSafeAreaInsets();
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: Spacing.logoInset,
+    paddingLeft: Spacing.screen,
     paddingRight: Spacing.screen,
     backgroundColor: 'transparent',
   },

@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GlassView } from 'expo-glass-effect';
 import { Colors } from '@/constants/colors';
-import { Fonts, FontSizes, Radii } from '@/constants/theme';
+import { Fonts, FontSizes } from '@/constants/theme';
 import { v } from '@/constants/layout';
 import { supportsLiquidGlass } from './glassSupport';
 
@@ -17,48 +17,45 @@ type TabBarProps = Parameters<
   NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>
 >[0];
 
+// Masse aus Figma Node 216:1280-1283, relativ zur Kapsel.
+const CAPSULE_WIDTH = v(210);
+const CAPSULE_HEIGHT = v(56);
+const SLIDER_WIDTH = v(108);       // Node 216:1281 - volle Hoehe, Text ausgeblendet
+const PILL_LEFT = v(14);           // Node 216:1282 - fix, markiert nur "Home"
+const PILL_TOP = v(9);
+const PILL_WIDTH = v(81);
+const PILL_HEIGHT = v(39);
+// Die beiden Tabflaechen ergeben zusammen die Kapselbreite; ihre Mitten treffen
+// damit die Textpositionen aus dem Figma (54 bzw. 158).
+const RANKINGS_TAB_WIDTH = CAPSULE_WIDTH - SLIDER_WIDTH;
 
-export const TAB_BAR_HEIGHT = v(56);
-export const TAB_BAR_BOTTOM_GAP = 8;
-
-const INNER_PADDING = 8;
-const SLIDER_HEIGHT = TAB_BAR_HEIGHT - INNER_PADDING * 2;
-
-type TabLayout = { x: number; width: number };
+export const TAB_BAR_HEIGHT = CAPSULE_HEIGHT;
+export const TAB_BAR_BOTTOM_GAP = v(8);
 
 /**
  * Tab-Bar aus Figma Node 216:1280-1283.
- * Die Kapsel ist weiss; Liquid Glass steckt nur im Slider, der beim Wechsel
- * auf den aktiven Tab wandert.
+ *
+ * Aufbau von hinten nach vorn:
+ *   1. weisse Kapsel mit leichtem Verlauf
+ *   2. schwarze Pille - **fix** auf der linken Seite, gehoert zur Optik von
+ *      "Home" und wandert nicht mit
+ *   3. Glas-Slider ueber voller Hoehe - wandert auf den aktiven Tab und zeigt
+ *      damit an, wo man ist
+ *   4. Beschriftungen
  */
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
-  const [layouts, setLayouts] = useState<Record<number, TabLayout>>({});
 
   const sliderX = useSharedValue(0);
-  const sliderWidth = useSharedValue(0);
-  const activeLayout = layouts[state.index];
 
   useEffect(() => {
-    if (!activeLayout) return;
-    const config = { duration: 260 };
-    sliderX.value = withTiming(activeLayout.x, config);
-    sliderWidth.value = withTiming(activeLayout.width, config);
-  }, [activeLayout, sliderX, sliderWidth]);
+    const target = state.index === 0 ? 0 : CAPSULE_WIDTH - SLIDER_WIDTH;
+    sliderX.value = withTiming(target, { duration: 260 });
+  }, [state.index, sliderX]);
 
   const sliderStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sliderX.value }],
-    width: sliderWidth.value,
   }));
-
-  const handleLayout = (index: number) => (event: LayoutChangeEvent) => {
-    const { x, width } = event.nativeEvent.layout;
-    setLayouts((prev) => {
-      const known = prev[index];
-      if (known && known.x === x && known.width === width) return prev;
-      return { ...prev, [index]: { x, width } };
-    });
-  };
 
   return (
     <View
@@ -71,25 +68,27 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
         end={{ x: 0.8, y: 1 }}
         style={styles.capsule}
       >
-        {activeLayout ? (
-          <Animated.View style={[styles.slider, sliderStyle]} pointerEvents="none">
-            {supportsLiquidGlass ? (
-              <GlassView
-                style={styles.sliderSurface}
-                glassEffectStyle="regular"
-                colorScheme="dark"
-                tintColor={Colors.tabSliderTint}
-              />
-            ) : (
-              <View style={[styles.sliderSurface, styles.sliderFallback]} />
-            )}
-          </Animated.View>
-        ) : null}
+        {/* Fix - markiert "Home", unabhaengig vom aktiven Tab. */}
+        <View style={styles.homePill} pointerEvents="none" />
+
+        {/* Wandert auf den aktiven Tab. */}
+        <Animated.View style={[styles.slider, sliderStyle]} pointerEvents="none">
+          {supportsLiquidGlass ? (
+            <GlassView
+              style={styles.sliderSurface}
+              glassEffectStyle="clear"
+              tintColor={Colors.tabSliderTint}
+            />
+          ) : (
+            <View style={[styles.sliderSurface, styles.sliderFallback]} />
+          )}
+        </Animated.View>
 
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label = (options.title ?? route.name) as string;
           const isFocused = state.index === index;
+          const isHome = index === 0;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -106,16 +105,15 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
             <TouchableOpacity
               key={route.key}
               onPress={onPress}
-              onLayout={handleLayout(index)}
-              style={styles.tab}
+              style={[styles.tab, { width: isHome ? SLIDER_WIDTH : RANKINGS_TAB_WIDTH }]}
               activeOpacity={0.85}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={label}
             >
-              <Text
-                style={[styles.tabLabel, isFocused ? styles.tabLabelActive : styles.tabLabelInactive]}
-              >
+              {/* Die Textfarben haengen an der festen Pille, nicht an der Auswahl:
+                  "Home" steht immer auf Schwarz, "Rankings" immer auf Weiss. */}
+              <Text style={[styles.tabLabel, isHome ? styles.labelOnPill : styles.labelOnCapsule]}>
                 {label}
               </Text>
             </TouchableOpacity>
@@ -138,27 +136,38 @@ const styles = StyleSheet.create({
   capsule: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: TAB_BAR_HEIGHT,
-    padding: INNER_PADDING,
-    borderRadius: Radii.tabBar,
+    width: CAPSULE_WIDTH,
+    height: CAPSULE_HEIGHT,
+    borderRadius: CAPSULE_HEIGHT / 2,
+  },
+  homePill: {
+    position: 'absolute',
+    left: PILL_LEFT,
+    top: PILL_TOP,
+    width: PILL_WIDTH,
+    height: PILL_HEIGHT,
+    borderRadius: PILL_HEIGHT / 2,
+    backgroundColor: Colors.tabActivePill,
   },
   slider: {
     position: 'absolute',
-    top: INNER_PADDING,
     left: 0,
-    height: SLIDER_HEIGHT,
+    top: 0,
+    width: SLIDER_WIDTH,
+    height: CAPSULE_HEIGHT,
   },
   sliderSurface: {
     flex: 1,
-    borderRadius: Radii.tabPill,
+    borderRadius: CAPSULE_HEIGHT / 2,
+    borderWidth: 1,
+    borderColor: Colors.tabSliderEdge,
     overflow: 'hidden',
   },
   sliderFallback: {
-    backgroundColor: Colors.tabActivePill,
+    backgroundColor: 'rgba(255,255,255,0.14)',
   },
   tab: {
-    height: SLIDER_HEIGHT,
-    paddingHorizontal: 20,
+    height: CAPSULE_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -167,10 +176,10 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.tabLabel,
     fontWeight: '500',
   },
-  tabLabelActive: {
+  labelOnPill: {
     color: Colors.primaryText,
   },
-  tabLabelInactive: {
+  labelOnCapsule: {
     color: Colors.tabInactiveText,
   },
 });

@@ -47,7 +47,6 @@ export const Radii = {
  */
 export const Spacing = {
   screen: 28,        // Seitenrand fuer Suchleiste, Karten und Textbloecke
-  logoInset: 44,     // Logo sitzt im Design bewusst weiter eingerueckt
   cardPaddingX: 20,
   cardPaddingY: 20,
   gap: 16,

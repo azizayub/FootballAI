@@ -311,8 +311,7 @@ konsistent fuer alle kuenftigen Screens.
 
 | Token | Wert |
 |---|---|
-| Seitenrand Inhalt | 28 px |
-| Seitenrand Logo (bewusst tiefer eingerueckt) | 44 px |
+| Seitenrand Inhalt (auch Logo) | 28 px |
 | Karten-Innenabstand | 20 px |
 | Abstand zwischen Chat-Karten | 16 px |
 | Suchleiste | H 58, Radius 39 |
@@ -334,8 +333,15 @@ konsistent fuer alle kuenftigen Screens.
   liegt dort hinter einer deckenden Ebene, sodass nur die 1-px-Kante sichtbar
   bleibt — sonst scheint er durch das durchsichtige Glas und graut die
   ganze Flaeche ein.
-- **Tab-Bar:** Die Kapsel ist **weiss** mit leichtem Verlauf. Glas steckt nur im
-  **Slider**, der beim Tab-Wechsel auf den aktiven Eintrag wandert (260 ms).
+- **Tab-Bar** (Nodes 216:1280-1283): Die Kapsel ist **weiss** mit leichtem
+  Verlauf (210x56). Darin liegen zwei getrennte Dinge, die nicht verwechselt
+  werden duerfen:
+  - die **schwarze Pille** (81x39, Node 216:1282) ist **fix** und gehoert zur
+    Optik von „Home" — sie wandert nicht mit
+  - der **Glas-Slider** (108x56 ueber volle Hoehe, Node 216:1281, Textebene im
+    Figma ausgeblendet) wandert auf den aktiven Tab und zeigt an, wo man ist
+  Die Textfarben haengen deshalb an der festen Pille, nicht an der Auswahl:
+  „Home" steht immer weiss auf Schwarz, „Rankings" immer dunkel auf Weiss.
   Siehe `components/common/TabBar.tsx`.
 - **`isInteractive` nur auf Flaechen**, die selbst Eingaben entgegennehmen
   (Suchleiste, Frage-Karte) — nicht auf dekorative Flaechen wie den

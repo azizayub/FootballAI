@@ -33,7 +33,8 @@ export const Colors = {
   // Slider, der auf den aktiven Tab wandert.
   tabBarCapsuleTop: 'rgba(255,255,255,0.98)',
   tabBarCapsuleBottom: 'rgba(198,198,198,0.92)',
-  tabSliderTint: 'rgba(0,0,0,0.90)',
+  tabSliderTint: 'rgba(255,255,255,0.10)',
+  tabSliderEdge: 'rgba(255,255,255,0.38)',
 
   // Runde Icon-Buttons (Node 205:156 / 205:406)
   iconButtonBackground: '#FFFFFF',
