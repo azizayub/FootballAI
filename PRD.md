@@ -523,6 +523,44 @@ Die KI gibt klare Meinungen ab. Beispiel-Formulierung: „Basierend auf den Stat
 
 ---
 
+## 8b. Builds, Geraetetests und Apple-Konto
+
+### 8b.1 Wo die App laeuft
+
+| Weg | Apple-Konto noetig? | Anmerkung |
+|---|---|---|
+| Expo Go (aktueller Entwicklungsstand) | nein | schnellster Weg, kostenlos |
+| iOS-Simulator auf dem Mac | nein | gut fuer Optik-Checks ohne Geraet |
+| Eigenes iPhone, lokal per Kabel gebaut | kostenloser Apple-ID reicht | einziger kostenloser Weg aufs Geraet; Zertifikat laeuft nach wenigen Tagen ab |
+| Eigenes iPhone ueber EAS Build | **ja, 99 $/Jahr** | Apple verlangt Signierung fuer jedes Geraet |
+| Verteilung an Tester (Ad Hoc / TestFlight) | **ja** | max. 100 iPhones pro Jahr |
+| App Store | **ja** | |
+
+> [!important] Haeufiges Missverstaendnis
+> Der bezahlte Apple Developer Account wird **nicht erst zum Veroeffentlichen**
+> gebraucht. Apple verlangt eine Signierung, sobald eine App auf einem echten
+> iPhone laeuft — auch beim eigenen Testgeraet. Expo-Doku dazu: „All builds that
+> run on an iPhone device require a paid Apple Developer account for build
+> signing." Der lokale Xcode-Build mit kostenloser Apple-ID ist laut Expo „the
+> only way to install a development build on an iPhone without a paid Apple
+> Developer account".
+>
+> Praktisch heisst das: Schon der erste Freund, der die App auf seinem iPhone
+> ausprobieren soll, kostet 99 $/Jahr — nicht erst der App Store.
+
+### 8b.2 Expo Go und Liquid Glass
+
+`expo-glass-effect` **ist** in Expo Go enthalten, wir sind also nicht blockiert.
+Fuer dieses Modul und `@expo/ui` gilt Expo Go aber als nicht voll zuverlaessig —
+was dort zu sehen ist, muss nicht exakt dem entsprechen, was ein echter Build
+zeigt. Solange nur das Layout beurteilt wird, ist das unkritisch. Beim
+Feinschliff von Glas-Optik im Zweifel mit einem Dev Build gegenpruefen.
+
+Passender Skill, falls ein Dev Build gebraucht wird:
+`npx skills add expo/skills@expo-dev-client` (offizielles Expo-Org).
+
+---
+
 ## 9. Supabase-Datenbankschema
 
 ### 9.1 Tabellen
