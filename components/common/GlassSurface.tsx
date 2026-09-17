@@ -21,8 +21,11 @@ interface GlassSurfaceProps {
   children: ReactNode;
   /** Eckenradius der aeusseren Kante. */
   radius: number;
-  /** Grundton der Glasflaeche - im Figma die Fill-Farbe des Nodes. */
+  /** Flaechenfarbe ohne Liquid Glass - im Figma die Fill-Farbe des Nodes. */
   fill?: string;
+  /** Tint fuer echtes Liquid Glass. Deutlich dunkler als der Fallback-Fill,
+   *  weil das Material selbst schon aufhellt. */
+  tint?: string;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
 }
@@ -36,6 +39,7 @@ export function GlassSurface({
   children,
   radius,
   fill = Colors.glassCard,
+  tint = Colors.glassTint,
   style,
   contentStyle,
 }: GlassSurfaceProps) {
@@ -52,7 +56,7 @@ export function GlassSurface({
         <GlassView
           style={[styles.inner, { borderRadius: innerRadius }, contentStyle]}
           glassEffectStyle="clear"
-          tintColor={fill}
+          tintColor={tint}
         >
           {children}
         </GlassView>

@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GlassView } from 'expo-glass-effect';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii } from '@/constants/theme';
+import { v } from '@/constants/layout';
 import { supportsLiquidGlass } from './glassSupport';
 
 // expo-router bringt seit SDK 57 eigene Bottom-Tabs-Typen mit, die nicht mehr
@@ -17,7 +18,7 @@ type TabBarProps = Parameters<
 >[0];
 
 
-export const TAB_BAR_HEIGHT = 56;
+export const TAB_BAR_HEIGHT = v(56);
 export const TAB_BAR_BOTTOM_GAP = 8;
 
 const INNER_PADDING = 8;

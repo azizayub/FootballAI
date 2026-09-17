@@ -300,6 +300,11 @@ SF Pro ist die iOS-Systemschrift und faellt auf Android auf Roboto zurueck.
 
 ### 6.3 Masse und Abstaende
 
+> **Geraetegroesse:** Der Figma-Frame ist 430x932 pt (iPhone Pro Max). Ein
+> iPhone Pro hat nur 402x874 pt — 58 pt weniger Hoehe. Der Inhalt passt dort
+> nicht 1:1. Das vertikale Raster wird deshalb ueber `constants/layout.ts`
+> proportional gestaucht (`v()`), groessere Geraete bleiben bei 1:1.
+
 Die Abstaende im Figma schwanken (28/33 px Seitenrand, 18/21/31 px Innenabstand).
 Im Code sind sie auf ein **4er-Raster** normalisiert — optisch identisch, aber
 konsistent fuer alle kuenftigen Screens.
@@ -351,7 +356,11 @@ Bewusste Entscheidungen, die vom File abweichen:
    dem Label und ist nicht sichtbar — weggelassen.
 5. **Avatar** ist im Figma ein Pexels-Stockfoto in rotierter Maske — im Code ein
    Platzhalterkreis, bis es echte Profilbilder gibt.
-6. **Der Pfeil-Button der Suchleiste** liegt im Figma bei x=378 und ragt damit
+6. **Glas-Tint:** Liquid Glass hellt von sich aus auf. Die Fill-Farben aus dem
+   Figma als Tint zu verwenden macht die Flaechen viel zu hell — fuers Glas
+   gilt deshalb `Colors.glassTint` (dunkel), die Figma-Fills nur noch fuer den
+   Fallback ohne Liquid Glass.
+7. **Der Pfeil-Button der Suchleiste** liegt im Figma bei x=378 und ragt damit
    rechnerisch aus der Pill heraus; im Code sitzt er wie im Screenshot 12 px
    innerhalb des rechten Rands (analog zum Senden-Button der Frage-Karte).
 

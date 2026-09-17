@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 import { GlassSurface } from './GlassSurface';
+import { v } from '@/constants/layout';
 import { PlayerAvatar } from './PlayerAvatar';
 
 interface SearchBarProps {
@@ -51,7 +52,7 @@ export function SearchBar({
 
 const styles = StyleSheet.create({
   container: {
-    height: 58,
+    height: v(58),
     marginHorizontal: Spacing.screen,
   },
   content: {

@@ -8,9 +8,12 @@ export const Colors = {
 
   // Karten-Flaechen
   cardBackground: '#1B1B1B',              // Chat-Karten (Node 205:4 / 205:10 / 216:1334)
-  glassCard: 'rgba(255,255,255,0.08)',    // Frage-Karte (Node 1:145)
-  searchBackground: 'rgba(187,187,187,0.08)', // Suchleiste (Node 1:176)
+  glassCard: 'rgba(255,255,255,0.08)',    // Frage-Karte (Node 1:145), Fallback-Fill
+  searchBackground: 'rgba(187,187,187,0.08)', // Suchleiste (Node 1:176), Fallback-Fill
   inputBackground: 'rgba(255,255,255,0.08)',
+  // Liquid Glass hellt von sich aus auf. Die Figma-Fills als Tint zu nehmen
+  // macht die Flaechen viel zu hell - deshalb ein dunkler Tint fuers Glas.
+  glassTint: 'rgba(12,12,12,0.55)',
 
   // Text
   primaryText: '#FFFFFF',

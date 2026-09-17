@@ -2,8 +2,9 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Spacing } from '@/constants/theme';
+import { v } from '@/constants/layout';
 
-const AVATAR_SIZE = 50;
+const AVATAR_SIZE = v(50);
 
 interface HeaderProps {
   profileImageUri?: string;

@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
 import { GlassSurface } from '@/components/common/GlassSurface';
+import { v } from '@/constants/layout';
 
 const STRINGS = {
   placeholder: 'Stelle deine Frage',
@@ -81,7 +82,7 @@ export function ChatInput({
 
 const styles = StyleSheet.create({
   container: {
-    height: 170,
+    height: v(170),
   },
   content: {
     paddingHorizontal: Spacing.cardPaddingX - 1,

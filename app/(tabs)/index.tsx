@@ -17,6 +17,7 @@ import { ChatInput } from '@/components/chat/ChatInput';
 import { TAB_BAR_BOTTOM_GAP, TAB_BAR_HEIGHT } from '@/components/common/TabBar';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii, Spacing } from '@/constants/theme';
+import { v } from '@/constants/layout';
 import { DUMMY_CHATS, DUMMY_SEARCH_PLAYERS } from '@/constants/dummyData';
 
 const STRINGS = {
@@ -136,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   searchSlot: {
-    marginTop: 36,
+    marginTop: v(36),
   },
   body: {
     flex: 1,
@@ -145,26 +146,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.screen,
   },
   greeting: {
-    marginTop: 28,
+    marginTop: v(24),
     color: Colors.primaryText,
     fontFamily: Fonts.serifItalic,
     fontSize: FontSizes.greeting,
   },
   subGreeting: {
-    marginTop: 12,
+    marginTop: v(12),
     color: Colors.secondaryText,
     fontFamily: Fonts.interMedium,
     fontSize: FontSizes.subGreeting,
   },
   questionSlot: {
-    marginTop: 32,
+    marginTop: v(32),
   },
   chatsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 44,
-    marginBottom: 16,
+    marginTop: v(40),
+    marginBottom: v(16),
   },
   chatsTitle: {
     color: Colors.primaryText,
@@ -177,10 +178,10 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
   },
   chatList: {
-    gap: 16,
+    gap: v(14),
   },
   chatCard: {
-    height: 64,
+    height: v(64),
     justifyContent: 'center',
     paddingHorizontal: Spacing.cardPaddingX,
     borderRadius: Radii.card,
