@@ -6,13 +6,17 @@ import { v } from '@/constants/layout';
 
 const AVATAR_SIZE = v(50);
 
+/** Hoehe der Kopfzeile ohne Safe Area - der Screen braucht sie fuer den Abstand. */
+export const HEADER_CONTENT_HEIGHT = AVATAR_SIZE;
+
 interface HeaderProps {
   profileImageUri?: string;
   onPressProfile?: () => void;
 }
 
 /**
- * Kopfzeile aus Figma Node 1:82.
+ * Kopfzeile aus Figma Node 1:82. Liegt fixiert ueber dem Inhalt, deshalb
+ * transparent - die Lesbarkeit kommt vom FadeBlur dahinter.
  * Das Logo ist im Design bewusst weiter eingerueckt (44 px) als der restliche
  * Inhalt (28 px); Logo und Avatar sind auf derselben Mittelachse.
  */
@@ -20,7 +24,7 @@ export function Header({ profileImageUri, onPressProfile }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top }]} pointerEvents="box-none">
       <View style={styles.logo}>
         <Text style={styles.logoFootball}>Football</Text>
         <Text style={styles.logoAI}>AI</Text>
@@ -50,8 +54,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: Spacing.logoInset,
     paddingRight: Spacing.screen,
-    paddingBottom: 8,
-    backgroundColor: Colors.background,
+    backgroundColor: 'transparent',
   },
   logo: {
     flexDirection: 'row',

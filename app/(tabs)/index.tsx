@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Header } from '@/components/common/Header';
+import { Header, HEADER_CONTENT_HEIGHT } from '@/components/common/Header';
+import { FadeBlur } from '@/components/common/FadeBlur';
 import { PlayerSearchDropdown, SearchBar } from '@/components/common/SearchBar';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { TAB_BAR_BOTTOM_GAP, TAB_BAR_HEIGHT } from '@/components/common/TabBar';
@@ -28,6 +29,11 @@ const STRINGS = {
 };
 
 const USER_NAME = 'Aziz';
+
+/** Abstand Avatar-Unterkante -> Suchleiste (Figma: 142 - 84). */
+const HEADER_TO_SEARCH = v(58);
+/** Wie weit der Blur unter die Kopfzeile reicht, bevor er ausblendet. */
+const BLUR_OVERHANG = v(40);
 
 /** Home Screen - Figma Node 1:82. */
 export default function HomeScreen() {
@@ -46,6 +52,7 @@ export default function HomeScreen() {
   }, [search]);
 
   const isSearching = searchResults.length > 0;
+  const headerHeight = insets.top + HEADER_CONTENT_HEIGHT;
 
   const handleSelectPlayer = (playerId: number) => {
     setSearch('');
@@ -60,73 +67,72 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Header />
-
-      <View style={styles.searchSlot}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: headerHeight + HEADER_TO_SEARCH,
+            paddingBottom: insets.bottom + TAB_BAR_HEIGHT + TAB_BAR_BOTTOM_GAP + v(32),
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <SearchBar value={search} onChangeText={setSearch} />
-      </View>
 
-      <View style={styles.body}>
-        <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            // Platz fuer die schwebende Tab-Bar inklusive Safe Area.
-            { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + TAB_BAR_BOTTOM_GAP + 32 },
-          ]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        <Text style={styles.greeting}>{STRINGS.greeting(USER_NAME)}</Text>
+        <Text style={styles.subGreeting}>{STRINGS.subGreeting}</Text>
+
+        <KeyboardAvoidingView
+          style={styles.questionSlot}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <Text style={styles.greeting}>{STRINGS.greeting(USER_NAME)}</Text>
-          <Text style={styles.subGreeting}>{STRINGS.subGreeting}</Text>
+          <ChatInput
+            value={question}
+            onChangeText={setQuestion}
+            onSend={handleSend}
+            comparisonMode={comparisonMode}
+            onToggleComparison={() => setComparisonMode((prev) => !prev)}
+          />
+        </KeyboardAvoidingView>
 
-          <KeyboardAvoidingView
-            style={styles.questionSlot}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          >
-            <ChatInput
-              value={question}
-              onChangeText={setQuestion}
-              onSend={handleSend}
-              comparisonMode={comparisonMode}
-              onToggleComparison={() => setComparisonMode((prev) => !prev)}
-            />
-          </KeyboardAvoidingView>
+        <View style={styles.chatsHeader}>
+          <Text style={styles.chatsTitle}>{STRINGS.chatsTitle}</Text>
+          <TouchableOpacity activeOpacity={0.7}>
+            <Text style={styles.seeAll}>{STRINGS.seeAll}</Text>
+          </TouchableOpacity>
+        </View>
 
-          <View style={styles.chatsHeader}>
-            <Text style={styles.chatsTitle}>{STRINGS.chatsTitle}</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.seeAll}>{STRINGS.seeAll}</Text>
+        <View style={styles.chatList}>
+          {DUMMY_CHATS.map((chat) => (
+            <TouchableOpacity
+              key={chat.id}
+              style={styles.chatCard}
+              onPress={() => router.push(`/chat/${chat.id}`)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.chatTitle} numberOfLines={1}>
+                {chat.title}
+              </Text>
             </TouchableOpacity>
-          </View>
+          ))}
+        </View>
+      </ScrollView>
 
-          <View style={styles.chatList}>
-            {DUMMY_CHATS.map((chat) => (
-              <TouchableOpacity
-                key={chat.id}
-                style={styles.chatCard}
-                onPress={() => router.push(`/chat/${chat.id}`)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.chatTitle} numberOfLines={1}>
-                  {chat.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-
-        {isSearching && (
-          <>
-            <Pressable style={styles.overlayBackdrop} onPress={() => setSearch('')} />
-            <View style={styles.overlayDropdown}>
-              <PlayerSearchDropdown
-                results={searchResults}
-                onSelect={handleSelectPlayer}
-              />
-            </View>
-          </>
-        )}
+      {/* Fixiert ueber dem Inhalt: weicher Blur-Uebergang, darauf die Kopfzeile. */}
+      <FadeBlur height={headerHeight + BLUR_OVERHANG} />
+      <View style={styles.headerSlot} pointerEvents="box-none">
+        <Header />
       </View>
+
+      {isSearching && (
+        <>
+          <Pressable style={styles.overlayBackdrop} onPress={() => setSearch('')} />
+          <View style={[styles.overlayDropdown, { top: headerHeight + HEADER_TO_SEARCH + v(58) }]}>
+            <PlayerSearchDropdown results={searchResults} onSelect={handleSelectPlayer} />
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -136,35 +142,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  searchSlot: {
-    marginTop: v(36),
-  },
-  body: {
-    flex: 1,
-  },
   scrollContent: {
     paddingHorizontal: Spacing.screen,
   },
+  headerSlot: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
   greeting: {
-    marginTop: v(24),
+    marginTop: v(36),
     color: Colors.primaryText,
     fontFamily: Fonts.serifItalic,
     fontSize: FontSizes.greeting,
   },
   subGreeting: {
-    marginTop: v(12),
+    // Im Figma sitzt die Unterzeile direkt unter der Begruessung (1 px).
+    marginTop: v(1),
     color: Colors.secondaryText,
     fontFamily: Fonts.interMedium,
     fontSize: FontSizes.subGreeting,
   },
   questionSlot: {
-    marginTop: v(32),
+    marginTop: v(36),
   },
   chatsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: v(40),
+    marginTop: v(52),
     marginBottom: v(16),
   },
   chatsTitle: {
@@ -178,10 +185,10 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
   },
   chatList: {
-    gap: v(14),
+    gap: v(16),
   },
   chatCard: {
-    height: v(64),
+    height: v(63),
     justifyContent: 'center',
     paddingHorizontal: Spacing.cardPaddingX,
     borderRadius: Radii.card,
@@ -193,12 +200,15 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
   },
   overlayBackdrop: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   overlayDropdown: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
   },
