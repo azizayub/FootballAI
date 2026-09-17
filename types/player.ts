@@ -1,4 +1,4 @@
-export type PlayerPosition = 'ST' | 'LF' | 'RF' | 'OM' | 'DM' | 'IV' | 'LV' | 'RV' | 'TW';
+export type PlayerPosition = 'ST' | 'LF' | 'RF' | 'OM' | 'ZM' | 'DM' | 'IV' | 'LV' | 'RV' | 'TW';
 
 export interface Player {
   id: number;

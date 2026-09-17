@@ -8,6 +8,7 @@ import {
   Inter_400Regular_Italic,
   Inter_500Medium,
   Inter_600SemiBold,
+  Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif';
 import { Roboto_500Medium } from '@expo-google-fonts/roboto';
@@ -22,6 +23,7 @@ export default function RootLayout() {
     Inter_400Regular_Italic,
     Inter_500Medium,
     Inter_600SemiBold,
+    Inter_700Bold,
     InstrumentSerif_400Regular_Italic,
     Roboto_500Medium,
   });

@@ -10,6 +10,7 @@ export const Fonts = {
   interItalic: 'Inter_400Regular_Italic',
   interMedium: 'Inter_500Medium',
   interSemiBold: 'Inter_600SemiBold',
+  interBold: 'Inter_700Bold',
   serifItalic: 'InstrumentSerif_400Regular_Italic',
   robotoMedium: 'Roboto_500Medium',
   // "Rankings" in der Tab-Bar ist im Figma SF Pro Medium.
@@ -28,6 +29,12 @@ export const FontSizes = {
   tabLabel: 14,
   statLabel: 11,
   statValue: 18,
+  // Rankings (Figma Node 205:878 / 256:138)
+  rankingName: 15,
+  rankingMeta: 13,
+  rankingRank: 15,
+  scoreRow: 11,
+  scoreHeader: 8,
 };
 
 /** Eckenradien aus Figma. */

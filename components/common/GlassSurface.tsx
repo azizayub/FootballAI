@@ -8,13 +8,13 @@ import { supportsLiquidGlass } from './glassSupport';
 
 // Der Lichtsaum laeuft von oben links (hell) nach unten rechts (fast weg) und
 // macht die Glaskante auf schwarzem Hintergrund ueberhaupt erst sichtbar.
-const RIM_COLORS = [
+export const GLASS_RIM_COLORS = [
   'rgba(255,255,255,0.40)',
   'rgba(255,255,255,0.12)',
   'rgba(255,255,255,0.03)',
 ] as const;
 
-const RIM_WIDTH = 1;
+export const GLASS_RIM_WIDTH = 1;
 
 interface GlassSurfaceProps {
   children: ReactNode;
@@ -52,14 +52,14 @@ export function GlassSurface({
   style,
   contentStyle,
 }: GlassSurfaceProps) {
-  const innerRadius = Math.max(radius - RIM_WIDTH, 0);
+  const innerRadius = Math.max(radius - GLASS_RIM_WIDTH, 0);
 
   return (
     <LinearGradient
-      colors={RIM_COLORS}
+      colors={GLASS_RIM_COLORS}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={[{ borderRadius: radius, padding: RIM_WIDTH }, style]}
+      style={[{ borderRadius: radius, padding: GLASS_RIM_WIDTH }, style]}
     >
       <View style={[styles.inner, { borderRadius: innerRadius }]}>
         <View style={styles.backdrop} pointerEvents="none" />

@@ -1,7 +1,7 @@
-import { PlayerWithStats } from '../types/player';
+import { PlayerPosition, PlayerWithStats } from '../types/player';
 import { Chat } from '../types/chat';
-import { RankingEntry } from '../types/stats';
 import { Competition } from '../types/stats';
+import { POSITIONS } from './positions';
 
 export const DUMMY_MBAPPE: PlayerWithStats = {
   id: 278,
@@ -147,55 +147,103 @@ export const DUMMY_CHATS: Chat[] = [
   },
 ];
 
-export const DUMMY_RANKINGS_ST: Array<PlayerWithStats & { rank: number; score: number }> = [
-  { ...DUMMY_MBAPPE, rank: 1, score: 152 },
-  { ...DUMMY_KANE, rank: 2, score: 118 },
-  {
-    ...DUMMY_VINICIUS,
-    rank: 3,
-    score: 109,
-    position: 'ST',
-    name: 'Erling Haaland',
-    firstname: 'Erling',
-    lastname: 'Haaland',
-    age: 26,
-    nationality: 'Norwegen',
-    nationalityFlag: '🇳🇴',
-    number: 9,
-    team: { id: 50, name: 'Manchester City', logo: 'https://media.api-sports.io/football/teams/50.png' },
-    stats: { ...DUMMY_VINICIUS.stats, goals: 27, assists: 5, rating: 7.7 },
-  },
-  {
-    ...DUMMY_KANE,
-    rank: 4,
-    score: 98,
-    id: 521,
-    name: 'Lautaro Martínez',
-    firstname: 'Lautaro',
-    lastname: 'Martínez',
-    age: 28,
-    nationality: 'Argentinien',
-    nationalityFlag: '🇦🇷',
-    number: 10,
-    team: { id: 505, name: 'Inter Mailand', logo: 'https://media.api-sports.io/football/teams/505.png' },
-    stats: { ...DUMMY_KANE.stats, goals: 20, assists: 6, rating: 7.4 },
-  },
-  {
-    ...DUMMY_KANE,
-    rank: 5,
-    score: 91,
-    id: 306,
-    name: 'Viktor Gyökeres',
-    firstname: 'Viktor',
-    lastname: 'Gyökeres',
-    age: 27,
-    nationality: 'Schweden',
-    nationalityFlag: '🇸🇪',
-    number: 9,
-    team: { id: 228, name: 'Sporting CP', logo: 'https://media.api-sports.io/football/teams/228.png' },
-    stats: { ...DUMMY_KANE.stats, goals: 22, assists: 4, rating: 7.5 },
-  },
+/**
+ * Rohdaten fuer die Rankings-Liste. Der Score wird nicht gespeichert, sondern
+ * in `lib/rankings.ts` aus diesen Stats und den Faktoren der Position
+ * gerechnet - so stimmt die aufgeklappte Tabelle immer mit dem Score ueberein.
+ */
+function makeRankingPlayer(
+  base: PlayerWithStats,
+  overrides: {
+    id: number;
+    name: string;
+    nationality: string;
+    nationalityFlag: string;
+    teamId: number;
+    teamName: string;
+    position: PlayerPosition;
+    goals: number;
+    assists: number;
+    chancesCreated: number;
+    dribbles: number;
+    dribbleSuccessRate: number;
+  }
+): PlayerWithStats {
+  const [firstname, ...rest] = overrides.name.split(' ');
+  return {
+    ...base,
+    id: overrides.id,
+    name: overrides.name,
+    firstname,
+    lastname: rest.join(' '),
+    nationality: overrides.nationality,
+    nationalityFlag: overrides.nationalityFlag,
+    position: overrides.position,
+    photo: `https://media.api-sports.io/football/players/${overrides.id}.png`,
+    team: {
+      id: overrides.teamId,
+      name: overrides.teamName,
+      logo: `https://media.api-sports.io/football/teams/${overrides.teamId}.png`,
+    },
+    stats: {
+      ...base.stats,
+      goals: overrides.goals,
+      assists: overrides.assists,
+      chancesCreated: overrides.chancesCreated,
+      dribbles: overrides.dribbles,
+      dribbleSuccessRate: overrides.dribbleSuccessRate,
+    },
+  };
+}
+
+const RANKING_ST: PlayerWithStats[] = [
+  DUMMY_MBAPPE,
+  DUMMY_KANE,
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 1100, name: 'Erling Haaland', nationality: 'Norwegen', nationalityFlag: '🇳🇴', teamId: 50, teamName: 'Manchester City', position: 'ST', goals: 27, assists: 5, chancesCreated: 21, dribbles: 41, dribbleSuccessRate: 48.8 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 521, name: 'Lautaro Martínez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 505, teamName: 'Inter Mailand', position: 'ST', goals: 20, assists: 6, chancesCreated: 28, dribbles: 55, dribbleSuccessRate: 50.9 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 306, name: 'Viktor Gyökeres', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 42, teamName: 'Arsenal', position: 'ST', goals: 22, assists: 4, chancesCreated: 19, dribbles: 63, dribbleSuccessRate: 52.4 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 909, name: 'Robert Lewandowski', nationality: 'Polen', nationalityFlag: '🇵🇱', teamId: 529, teamName: 'FC Barcelona', position: 'ST', goals: 19, assists: 5, chancesCreated: 22, dribbles: 30, dribbleSuccessRate: 43.3 }),
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 2295, name: 'Victor Osimhen', nationality: 'Nigeria', nationalityFlag: '🇳🇬', teamId: 645, teamName: 'Galatasaray', position: 'ST', goals: 18, assists: 3, chancesCreated: 16, dribbles: 48, dribbleSuccessRate: 50.0 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 1485, name: 'Alexander Isak', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 40, teamName: 'FC Liverpool', position: 'ST', goals: 17, assists: 6, chancesCreated: 24, dribbles: 58, dribbleSuccessRate: 55.2 }),
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 1483, name: 'Julián Álvarez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 530, teamName: 'Atlético Madrid', position: 'ST', goals: 16, assists: 7, chancesCreated: 31, dribbles: 66, dribbleSuccessRate: 51.5 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 2413, name: 'Serhou Guirassy', nationality: 'Guinea', nationalityFlag: '🇬🇳', teamId: 165, teamName: 'Borussia Dortmund', position: 'ST', goals: 15, assists: 4, chancesCreated: 17, dribbles: 35, dribbleSuccessRate: 45.7 }),
 ];
+
+/**
+ * Fuer die uebrigen Positionen gibt es in Phase 2 noch keine echten Kader -
+ * die Liste wird wie im Figma mit Platzhaltern gefuellt.
+ */
+function placeholderRanking(position: PlayerPosition): PlayerWithStats[] {
+  return Array.from({ length: 10 }, (_, index) =>
+    makeRankingPlayer(DUMMY_VINICIUS, {
+      id: 90000 + POSITIONS.indexOf(position) * 100 + index,
+      name: `Vorname Nachname`,
+      nationality: 'Land',
+      nationalityFlag: '🏳️',
+      teamId: 0,
+      teamName: 'Club',
+      position,
+      goals: 20 - index,
+      assists: 12 - index,
+      chancesCreated: 40 - index * 2,
+      dribbles: 90 - index * 5,
+      dribbleSuccessRate: 60 - index,
+    })
+  );
+}
+
+export const DUMMY_RANKING_PLAYERS: Record<PlayerPosition, PlayerWithStats[]> = {
+  ST: RANKING_ST,
+  LF: placeholderRanking('LF'),
+  RF: placeholderRanking('RF'),
+  OM: placeholderRanking('OM'),
+  ZM: placeholderRanking('ZM'),
+  DM: placeholderRanking('DM'),
+  IV: placeholderRanking('IV'),
+  LV: placeholderRanking('LV'),
+  RV: placeholderRanking('RV'),
+  TW: placeholderRanking('TW'),
+};
 
 export const DUMMY_COMPETITIONS: Competition[] = [
   { id: 140, name: 'LaLiga', logo: 'https://media.api-sports.io/football/leagues/140.png', season: '25/26' },

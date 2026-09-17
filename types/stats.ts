@@ -1,4 +1,4 @@
-import { PlayerPosition } from './player';
+import { PlayerPosition, PlayerWithStats } from './player';
 
 export interface RankingEntry {
   rank: number;
@@ -15,6 +15,22 @@ export interface RankingEntry {
     dribblesScore: number;
     total: number;
   };
+}
+
+/** Eine Zeile der aufgeklappten Score-Tabelle (Figma Node 256:138). */
+export interface ScoreRow {
+  label: string;
+  count: number;
+  factor: number;
+  score: number;
+}
+
+/** Ein Eintrag der Rankings-Liste inklusive offengelegter Rechnung. */
+export interface RankedPlayer {
+  rank: number;
+  player: PlayerWithStats;
+  score: number;
+  rows: ScoreRow[];
 }
 
 export interface RankingFilter {

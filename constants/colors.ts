@@ -44,9 +44,19 @@ export const Colors = {
   ratingBadge: '#34C759',
   comparisonBlue: '#3B82F6',
   comparisonRed: '#EF4444',
-  rankingFirst: '#FF3B30',
-  rankingSecond: '#FF6B35',
-  rankingThird: '#FF9500',
+
+  // Ranking-Karten Platz 1-3 (Figma Node 205:893 / 210:93 / 210:100):
+  // derselbe Verlauf links->rechts, pro Platz schwaecher deckend.
+  rankingGradient: ['#FF0005', '#FB1F3C', '#FF4800'] as const,
+  rankingGradientStops: [0, 0.47115, 1] as const,
+  rankingCardMeta: '#E6E6E6',            // "Club Land" (Node 210:102)
+  rankingTableLine: 'rgba(255,255,255,0.6)',
+
+  // Positions-Filter (Figma Node 336:276 / 336:278)
+  filterTrack: 'rgba(187,187,187,0.08)',
+  filterActive: 'rgba(187,187,187,0.17)',   // Fallback-Fill ohne Liquid Glass
+  filterSliderTint: 'rgba(255,255,255,0.10)',
+  filterSliderEdge: 'rgba(255,255,255,0.38)',
 
   border: 'rgba(255,255,255,0.10)',
   divider: 'rgba(255,255,255,0.18)',      // Trenner in der Suchleiste (Node 1:178)
