@@ -5,6 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 import { Fonts, FontSizes, Radii } from '@/constants/theme';
 import { RankedPlayer } from '@/types/stats';
+import { PlayerPosition } from '@/types/player';
+import { POSITION_GROUP } from '@/constants/positions';
 import { RankingCardExpanded } from './RankingCardExpanded';
 
 const COLLAPSED_HEIGHT = 52;
@@ -14,14 +16,15 @@ const AVATAR_SIZE = 33;
 const GRADIENT_RANKS = 3;
 
 /**
- * Platz 1 bis 3 teilen sich denselben Verlauf (Figma Node 205:893), er wird
- * pro Platz schwaecher: Platz 1 voll deckend, Platz 2 zu 75 %, Platz 3 zu 50 %.
+ * Platz 1 bis 3 teilen sich denselben Verlauf (Farbe je Mannschaftsteil, siehe
+ * Colors.rankingThemes), er wird pro Platz schwaecher: Platz 1 voll deckend,
+ * Platz 2 zu 75 %, Platz 3 zu 50 %. Auf Schwarz wird Weiss dadurch grau.
  */
 const RANK_OPACITY = [1, 0.75, 0.5];
 
-function gradientColors(rank: number) {
+function gradientColors(hexColors: readonly string[], rank: number) {
   const alpha = RANK_OPACITY[rank - 1] ?? 1;
-  return Colors.rankingGradient.map((hex) => {
+  return hexColors.map((hex) => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
@@ -31,6 +34,8 @@ function gradientColors(rank: number) {
 
 interface RankingCardProps {
   entry: RankedPlayer;
+  /** Gewaehlte Position im Filter - bestimmt die Farbe der Top-3-Karten. */
+  position: PlayerPosition;
   expanded: boolean;
   onToggle: () => void;
   onPressPlayer: () => void;
@@ -42,9 +47,23 @@ interface RankingCardProps {
  * Zwei Tap-Ziele, wie in PRD 5.6 beschrieben: der Karten-Body fuehrt zum
  * Spieler, die Platzierung rechts klappt die Score-Rechnung auf und zu.
  */
-export function RankingCard({ entry, expanded, onToggle, onPressPlayer }: RankingCardProps) {
+export function RankingCard({
+  entry,
+  position,
+  expanded,
+  onToggle,
+  onPressPlayer,
+}: RankingCardProps) {
   const { player, rank, score, rows } = entry;
   const isTop = rank <= GRADIENT_RANKS;
+  const theme = Colors.rankingThemes[POSITION_GROUP[position]];
+  // Die Theme-Schrift gilt nur auf Platz 1 und 2. Platz 3 ist bei 50 %
+  // Deckkraft schon so dunkel, dass Weiss besser lesbar ist - beim Torwart ist
+  // die Karte dort mittelgrau (dunkle Schrift 3,3:1, weisse 5,3:1). Ab Platz 4
+  // ist die Karte ohnehin dunkelgrau.
+  const usesThemeText = isTop && rank < GRADIENT_RANKS;
+  const textColor = usesThemeText ? theme.text : Colors.primaryText;
+  const text = { color: textColor };
 
   const content = (
     <View style={styles.inner}>
@@ -55,7 +74,7 @@ export function RankingCard({ entry, expanded, onToggle, onPressPlayer }: Rankin
           </View>
 
           <View style={styles.info}>
-            <Text style={styles.name} numberOfLines={1}>
+            <Text style={[styles.name, text]} numberOfLines={1}>
               {player.name}
             </Text>
             {isTop ? (
@@ -80,13 +99,18 @@ export function RankingCard({ entry, expanded, onToggle, onPressPlayer }: Rankin
           }
           accessibilityState={{ expanded }}
         >
-          <Text style={styles.rank}>{rank}</Text>
+          <Text style={[styles.rank, text]}>{rank}</Text>
         </Pressable>
       </View>
 
       {expanded && (
         <>
-          <RankingCardExpanded rows={rows} total={score} />
+          <RankingCardExpanded
+            rows={rows}
+            total={score}
+            textColor={textColor}
+            lineColor={usesThemeText ? theme.line : Colors.rankingTableLine}
+          />
           <Pressable
             style={styles.chevron}
             onPress={onToggle}
@@ -94,7 +118,7 @@ export function RankingCard({ entry, expanded, onToggle, onPressPlayer }: Rankin
             accessibilityRole="button"
             accessibilityLabel="Score schliessen"
           >
-            <Ionicons name="chevron-up" size={14} color={Colors.primaryText} />
+            <Ionicons name="chevron-up" size={14} color={textColor} />
           </Pressable>
         </>
       )}
@@ -108,7 +132,7 @@ export function RankingCard({ entry, expanded, onToggle, onPressPlayer }: Rankin
     >
       {isTop ? (
         <LinearGradient
-          colors={gradientColors(rank)}
+          colors={gradientColors(theme.gradient, rank)}
           locations={Colors.rankingGradientStops as unknown as [number, number, number]}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}

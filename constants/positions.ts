@@ -27,6 +27,22 @@ export const POSITION_LABELS: Record<PlayerPosition, string> = {
   TW: 'TW',
 };
 
+/** Mannschaftsteil einer Position - bestimmt die Farbe der Top-3-Karten. */
+export type PositionGroup = 'attack' | 'midfield' | 'defense' | 'goalkeeper';
+
+export const POSITION_GROUP: Record<PlayerPosition, PositionGroup> = {
+  ST: 'attack',
+  LF: 'attack',
+  RF: 'attack',
+  OM: 'midfield',
+  ZM: 'midfield',
+  DM: 'midfield',
+  IV: 'defense',
+  LV: 'defense',
+  RV: 'defense',
+  TW: 'goalkeeper',
+};
+
 /** Die vier Kategorien, aus denen sich der Rankings-Score zusammensetzt (PRD 7.4). */
 export interface ScoreFactors {
   goals: number;

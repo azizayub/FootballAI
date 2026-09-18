@@ -84,6 +84,7 @@ export default function RankingsScreen() {
             <RankingCard
               key={entry.player.id}
               entry={entry}
+              position={position}
               expanded={expandedRank === entry.rank}
               onToggle={() =>
                 setExpandedRank((current) => (current === entry.rank ? null : entry.rank))

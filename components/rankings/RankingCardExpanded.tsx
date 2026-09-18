@@ -15,38 +15,49 @@ const STRINGS = {
 interface RankingCardExpandedProps {
   rows: ScoreRow[];
   total: number;
+  /** Schrift- und Linienfarbe - auf der weissen Torwart-Karte dunkel. */
+  textColor?: string;
+  lineColor?: string;
 }
 
 /**
  * Score-Tabelle im aufgeklappten Ranking-Eintrag (Figma Node 256:138).
  * Legt die Rechnung aus PRD 7.4 offen: Kategorie, Anzahl, Faktor, Score.
  */
-export function RankingCardExpanded({ rows, total }: RankingCardExpandedProps) {
+export function RankingCardExpanded({
+  rows,
+  total,
+  textColor = Colors.primaryText,
+  lineColor = Colors.rankingTableLine,
+}: RankingCardExpandedProps) {
+  const text = { color: textColor };
+  const line = { borderBottomColor: lineColor };
+
   return (
     <View style={styles.table}>
       <View style={styles.headerRow}>
-        <Text style={[styles.headerCell, styles.categoryCell]}>{STRINGS.categories}</Text>
-        <Text style={[styles.headerCell, styles.numberCell]}>{STRINGS.count}</Text>
-        <Text style={[styles.headerCell, styles.numberCell]}>{STRINGS.factor}</Text>
-        <Text style={[styles.headerCell, styles.numberCell]}>{STRINGS.score}</Text>
+        <Text style={[styles.headerCell, text, styles.categoryCell]}>{STRINGS.categories}</Text>
+        <Text style={[styles.headerCell, text, styles.numberCell]}>{STRINGS.count}</Text>
+        <Text style={[styles.headerCell, text, styles.numberCell]}>{STRINGS.factor}</Text>
+        <Text style={[styles.headerCell, text, styles.numberCell]}>{STRINGS.score}</Text>
       </View>
 
       {rows.map((row) => (
-        <View key={row.label} style={styles.row}>
-          <Text style={[styles.cell, styles.categoryCell]} numberOfLines={1}>
+        <View key={row.label} style={[styles.row, line]}>
+          <Text style={[styles.cell, text, styles.categoryCell]} numberOfLines={1}>
             {row.label}
           </Text>
-          <Text style={[styles.cell, styles.numberCell]}>{formatScore(row.count)}</Text>
-          <Text style={[styles.cell, styles.numberCell]}>{formatFactor(row.factor)}</Text>
-          <Text style={[styles.cell, styles.numberCell]}>{formatScore(row.score)}</Text>
+          <Text style={[styles.cell, text, styles.numberCell]}>{formatScore(row.count)}</Text>
+          <Text style={[styles.cell, text, styles.numberCell]}>{formatFactor(row.factor)}</Text>
+          <Text style={[styles.cell, text, styles.numberCell]}>{formatScore(row.score)}</Text>
         </View>
       ))}
 
       <View style={styles.totalRow}>
-        <Text style={[styles.totalCell, styles.categoryCell]}>{STRINGS.total}</Text>
+        <Text style={[styles.totalCell, text, styles.categoryCell]}>{STRINGS.total}</Text>
         <View style={styles.numberCell} />
         <View style={styles.numberCell} />
-        <Text style={[styles.totalCell, styles.numberCell]}>{formatScore(total)}</Text>
+        <Text style={[styles.totalCell, text, styles.numberCell]}>{formatScore(total)}</Text>
       </View>
     </View>
   );

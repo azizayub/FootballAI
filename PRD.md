@@ -1,7 +1,7 @@
 # Football AI — PRD (Technischer Spec)
 
-**Version:** 2.0
-**Stand:** 26. Juli 2026
+**Version:** 2.1
+**Stand:** 18. September 2026
 **Phase:** Phase 2, UI und Screens mit Dummy-Daten
 **Repo:** github.com/azizayub/FootballAI
 
@@ -102,6 +102,7 @@ FootballAI/
 │
 ├── lib/
 │   ├── supabase.ts               # Supabase Client (Phase 1 fertig)
+│   ├── rankings.ts               # Score-Rechnung und Rangliste (§7.4)
 │   ├── sportmonks.ts             # Sportmonks Wrapper (Phase 3)
 │   └── ai.ts                     # Claude-Haiku-Layer (Phase 3)
 │
@@ -205,7 +206,7 @@ Sechseckiges Radar-Chart auf schwarzem Karten-Hintergrund. Titel oben links: „
 - Tore
 - Schuss-Versuche
 
-Für andere Positionen (OM, DM, IV, LV, RV, TW) werden die 6 Achsen entsprechend gewechselt. Mapping siehe §7.2.
+Für andere Positionen (OM, ZM, DM, IV, LV, RV, TW) werden die 6 Achsen entsprechend gewechselt. Mapping siehe §7.2.
 
 **Rendering:**
 - Achsen als graue gepunktete Linien
@@ -232,15 +233,19 @@ Perzentil bezieht sich auf alle Spieler derselben Position in derselben Liga. St
 
 Header (gleich wie Home). Suchleiste darunter.
 
-**Positions-Filter:** Label „Position". Darunter horizontale Pill-Reihe mit 8 Positionen in dieser Reihenfolge: **ST, LF, RF, OM, DM, IV, LV, RV**. Aktiver Filter: weißer Hintergrund, schwarzer Text. Inaktiv: transparent, grauer Text. (TW ist Post-Launch und wird im Filter erst später ergänzt.)
+**Positions-Filter:** Label „Position". Darunter eine Glas-Spur (Figma 336:276) mit 10 Positionen in dieser Reihenfolge: **ST, LF, RF, OM, ZM, DM, IV, LV, RV, TW**. ZM und TW sind gegenüber dem Figma ergänzt. Zehn Positionen passen nicht nebeneinander, deshalb **scrollt die Reihe horizontal** (nur horizontal, ohne vertikales Federn); Schriftgröße und Abstände bleiben wie im Design.
+
+Die Auswahl markiert ein **Liquid-Glass-Slider**, der beim Wechsel auf die neue Position gleitet und dabei seine Breite anpasst. Unterwegs bricht er die Labels, über die er fährt; in Ruhe ist das aktive Label scharf. Umsetzung siehe §6.4 „Glas-Slider über Beschriftungen". Alle Labels sind weiß (Figma), die Auswahl zeigt allein der Slider.
 
 **Rankings-Liste:** Label rechts „Rankings". Darunter nummerierte Karten 1 bis 10.
 
-Plätze 1 bis 3: Farbverlauf-Hintergrund (rot bei Platz 1, abnehmende Intensität rot-orange bei 2 und 3). Plätze 4+: dunkelgrauer Standard-Karten-Hintergrund. Jede Karte: kleines rundes Spielerbild, Name fett weiß, Club-Logo plus Länderflagge (bei Platz 1 bis 3) oder Club-Name plus Land (bei Platz 4+), Platzierungsnummer rechts.
+Plätze 1 bis 3: Farbverlauf-Hintergrund, **Farbe je Mannschaftsteil der gewählten Position** (siehe §6.1): Blau für Offensive (ST, LF, RF), Grün für Mittelfeld (OM, ZM, DM), Rot für Abwehr (IV, LV, RV), Weiß für Torwart (TW). Die Deckkraft nimmt pro Platz ab (100 %, 75 %, 50 %), Weiß wird dadurch auf Schwarz zunehmend grau. Plätze 4+: dunkelgrauer Standard-Karten-Hintergrund. Jede Karte: kleines rundes Spielerbild, Name fett, Club-Logo plus Länderflagge (bei Platz 1 bis 3) oder Club-Name plus Land (bei Platz 4+), Platzierungsnummer rechts.
 
-**Expanded State (bei Tap auf Karte, insbesondere Platz 1):** Karte vergrößert sich, zeigt Score-Tabelle mit Spalten Kategorien, Anzahl, Faktor, Score. Zeilen: Tore, Vorlagen, Kreierte Chancen, Erfolgr. Dribblings. Letzte Zeile Gesamt-Score fett. Beispiel-Berechnung siehe §7.4.
+Schrift ist weiß, mit einer Ausnahme: auf der weißen Torwart-Karte sind Platz 1 und 2 dunkel (`#1A1A1A`), inklusive Score-Tabelle und Pfeil. Platz 3 bleibt auch beim Torwart weiß, weil die Karte bei 50 % Deckkraft schon mittelgrau ist (dunkle Schrift 3,3:1, weiße 5,3:1 — siehe WCAG AA in §14).
 
-Bei Tap auf Karten-Body: Navigation zum Player Detail Screen.
+**Expanded State (bei Tap auf die Platzierungsnummer, insbesondere Platz 1):** Karte vergrößert sich, zeigt Score-Tabelle mit Spalten Kategorien, Anzahl, Faktor, Score. Zeilen: Tore, Vorlagen, Kreierte Chancen, Erfolgr. Dribblings. Letzte Zeile Gesamt-Score fett. Beispiel-Berechnung siehe §7.4.
+
+**Zwei Tap-Ziele pro Karte:** Tap auf den Karten-Body (Bild, Name) führt zum Player Detail Screen. Tap auf die Platzierungsnummer rechts klappt die Score-Tabelle auf und zu; aufgeklappt schließt sie zusätzlich der Pfeil unten rechts. Beim Wechsel der Position klappt eine offene Karte zu.
 
 ---
 
@@ -275,9 +280,30 @@ festen Grautoenen. Deshalb sind mehrere Werte `rgba` statt Hex.
 | Tab inaktiv Text | `#1A1A1A` | 216:1283 |
 | Trenner Suchleiste | `rgba(255,255,255,0.18)` | 1:178 |
 
-Die Vergleichs- und Ranking-Farben (Blau `#3B82F6`, Rot `#EF4444`, Ranking-Rot
-`#FF3B30` bis Orange `#FF9500`) sind im Figma noch nicht designt und bleiben bis
-dahin als Platzhalter in `constants/colors.ts`.
+Die Vergleichs-Farben (Blau `#3B82F6`, Rot `#EF4444`) sind im Figma noch nicht
+designt und bleiben bis dahin als Platzhalter in `constants/colors.ts`.
+
+**Ranking-Karten Platz 1 bis 3** (`Colors.rankingThemes`): ein Verlauf links nach
+rechts mit drei Stops bei 0 / 47 / 100 %. Rot ist der Verlauf aus dem Figma
+(Node 205:893), Blau, Grün und Weiß sind nach demselben Muster gebaut:
+Grundton, hellere Mitte, leichter Farbschwenk am Ende.
+
+| Mannschaftsteil | Positionen | Verlauf | Schrift |
+|---|---|---|---|
+| Offensive | ST, LF, RF | `#0A3DFF` → `#2A6BFF` → `#00A6FF` | `#FFFFFF` |
+| Mittelfeld | OM, ZM, DM | `#00A63E` → `#16C25B` → `#7ACC00` | `#FFFFFF` |
+| Abwehr | IV, LV, RV | `#FF0005` → `#FB1F3C` → `#FF4800` | `#FFFFFF` |
+| Torwart | TW | `#FFFFFF` → `#F0F0F0` → `#D6D6D6` | `#1A1A1A` (Platz 1–2) |
+
+Die Zuordnung Position → Mannschaftsteil liegt in `POSITION_GROUP`
+(`constants/positions.ts`).
+
+| Positions-Filter | Wert | Figma-Node |
+|---|---|---|
+| Spur | `rgba(187,187,187,0.08)`, H 44, Radius 39, Glas | 336:276 |
+| Slider Tint | `rgba(255,255,255,0.10)` | — |
+| Slider Kante | `rgba(255,255,255,0.38)`, 1 px | — |
+| Slider ohne Liquid Glass | `rgba(187,187,187,0.17)` | 336:278 |
 
 ### 6.2 Typografie
 
@@ -347,6 +373,21 @@ konsistent fuer alle kuenftigen Screens.
   alles dahinter — liegt die Pille darunter, wird sie auf Slider-Groesse
   aufgezogen und grau.
   Siehe `components/common/TabBar.tsx`.
+- **Glas-Slider über Beschriftungen** (Positions-Filter,
+  `components/rankings/PositionFilter.tsx`): Glas bricht nur, was *hinter*
+  ihm liegt. Steht die Schrift in der Pille, ist dahinter nur Schwarz und der
+  Effekt unsichtbar. Liegt sie hinter dem Glas, ist sie in Ruhe kaum lesbar.
+  Deshalb gibt es jedes Label zweimal:
+  1. unter dem Glas: wird gebrochen, wenn der Slider darüber gleitet
+  2. der Glas-Slider
+  3. über dem Glas: nur das aktive Label ist sichtbar, und zwar scharf
+  Beim Wechsel taucht das alte Label sofort unter das Glas ab; das neue wird
+  oben erst scharf, wenn der Slider nach ~60 % der Fahrt ankommt
+  (`ARRIVAL_DELAY`). Der Slider selbst ist `pointerEvents="none"`, sonst
+  schluckt er die Taps.
+- **Horizontale Scroll-Reihen in Glasflächen:** Die Reihe darf exakt so hoch
+  sein wie die Innenhöhe der Glasfläche (Höhe minus 2× Lichtkante). Ist sie
+  auch nur 1 pt höher, lässt iOS sie vertikal scrollen und federn.
 - **`isInteractive` nur auf Flaechen**, die selbst Eingaben entgegennehmen
   (Suchleiste, Frage-Karte) — nicht auf dekorative Flaechen wie den
   Tab-Slider. Entspricht Apples Regel fuer `.interactive()`.
@@ -420,11 +461,12 @@ type PlayerPosition =
   | 'LF'   // Linksaußen
   | 'RF'   // Rechtsaußen
   | 'OM'   // Offensives Mittelfeld
+  | 'ZM'   // Zentrales Mittelfeld
   | 'DM'   // Defensives Mittelfeld
   | 'IV'   // Innenverteidiger
   | 'LV'   // Linksverteidiger
   | 'RV'   // Rechtsverteidiger
-  | 'TW';  // Torhüter (Post-Launch)
+  | 'TW';  // Torhüter
 ```
 
 ### 7.2 Statistiken pro Position
@@ -445,6 +487,9 @@ type PlayerPosition =
 - Pässe, Erfolgreiche Pässe %
 - Rating
 
+**Zentrales Mittelfeld (ZM)**
+- Stat-Auswahl noch offen; bis dahin gelten die Kategorien von OM und DM gemeinsam
+
 **Defensives Mittelfeld (DM)**
 - Zweikämpfe, Gewonnene Zweikämpfe %
 - Interceptions, Tackles
@@ -460,7 +505,7 @@ type PlayerPosition =
 - Fehler die zu Chancen führten
 - Rating
 
-**Torhüter (TW, Post-Launch)**
+**Torhüter (TW)**
 - Paraden
 - Gegentore
 - Clean Sheets
@@ -493,7 +538,11 @@ Vereinfachte, transparente Formel. Bei Tap auf einen Ranking-Eintrag wird die Re
 Score = (Tore × 2) + (Vorlagen × 1) + (Kreierte Chancen × 0,5) + (Erfolgr. Dribblings × 0,25)
 ```
 
-Gewichtungsfaktoren variieren je nach Position. Faktoren für OM, DM, IV, LV, RV und TW werden in `constants/positions.ts` gepflegt.
+Gewichtungsfaktoren variieren je nach Position und liegen in `SCORE_FACTORS` (`constants/positions.ts`). Nur die ST-Faktoren sind fachlich festgelegt; LF, RF, OM, ZM, DM, IV, LV, RV und TW sind Platzhalter.
+
+**Offene Frage TW:** Die vier Score-Kategorien (Tore, Vorlagen, Kreierte Chancen, Erfolgr. Dribblings) passen für Torhüter fachlich nicht. TW braucht eigene Kategorien (Paraden, Gegentore, Clean Sheets). Bis dahin nutzt TW dieselben vier Zeilen mit Platzhalter-Faktoren.
+
+Der Score wird in Phase 2 nicht gespeichert, sondern in `lib/rankings.ts` aus den Stats und den Faktoren gerechnet. So kann die aufgeklappte Tabelle nie etwas anderes zeigen als den Score. Erfolgreiche Dribblings = Dribbling-Versuche × Erfolgsquote.
 
 Rankings werden 1x täglich pro Position batch-vorberechnet und aus der Supabase-DB serviert (siehe §10.2).
 
@@ -690,7 +739,7 @@ Damit Claude Code diese Features nicht spekulativ mitbaut:
 - Sharing (Stat-Karten als Bild teilen)
 - Sponsoring von Rankings, Brand-Placements als Feature
 - Creator-Kooperationen als App-Feature
-- Torhüter-Ranking (kommt post-launch)
+- Torhüter-Ranking mit eigenen Score-Kategorien (TW ist im Filter bereits enthalten, siehe §7.4)
 
 Business-Priorisierung dieser Future-Features lebt in Obsidian.
 

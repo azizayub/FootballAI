@@ -45,9 +45,33 @@ export const Colors = {
   comparisonBlue: '#3B82F6',
   comparisonRed: '#EF4444',
 
-  // Ranking-Karten Platz 1-3 (Figma Node 205:893 / 210:93 / 210:100):
-  // derselbe Verlauf links->rechts, pro Platz schwaecher deckend.
-  rankingGradient: ['#FF0005', '#FB1F3C', '#FF4800'] as const,
+  // Ranking-Karten Platz 1-3: Verlauf links->rechts, pro Platz schwaecher
+  // deckend. Die Farbe haengt am Mannschaftsteil der gewaehlten Position.
+  // Rot ist der Verlauf aus dem Figma (Node 205:893); Blau und Gruen sind nach
+  // demselben Muster gebaut - Grundton, hellere Mitte, Farbverschiebung am Ende.
+  // Auf Weiss (Torwart) braucht der Text dunkle Schrift.
+  rankingThemes: {
+    attack: {
+      gradient: ['#0A3DFF', '#2A6BFF', '#00A6FF'],
+      text: '#FFFFFF',
+      line: 'rgba(255,255,255,0.6)',
+    },
+    midfield: {
+      gradient: ['#00A63E', '#16C25B', '#7ACC00'],
+      text: '#FFFFFF',
+      line: 'rgba(255,255,255,0.6)',
+    },
+    defense: {
+      gradient: ['#FF0005', '#FB1F3C', '#FF4800'],
+      text: '#FFFFFF',
+      line: 'rgba(255,255,255,0.6)',
+    },
+    goalkeeper: {
+      gradient: ['#FFFFFF', '#F0F0F0', '#D6D6D6'],
+      text: '#1A1A1A',
+      line: 'rgba(26,26,26,0.35)',
+    },
+  },
   rankingGradientStops: [0, 0.47115, 1] as const,
   rankingCardMeta: '#E6E6E6',            // "Club Land" (Node 210:102)
   rankingTableLine: 'rgba(255,255,255,0.6)',
