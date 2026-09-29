@@ -1,31 +1,46 @@
 import { PlayerPosition, PlayerWithStats } from '@/types/player';
 import { RankedPlayer, ScoreRow } from '@/types/stats';
-import { SCORE_FACTORS, SCORE_ROW_LABELS } from '@/constants/positions';
+import { SCORE_MODEL, SCORE_STAT_LABELS, ScoreStatKey } from '@/constants/positions';
 
 /**
- * Erfolgreiche Dribblings - Sportmonks liefert Versuche plus Erfolgsquote,
- * die Score-Tabelle zeigt die erfolgreichen.
+ * Woher der Wert einer Score-Kategorie kommt. Manche Stats liefert Sportmonks
+ * als Versuche plus Erfolgsquote - die Tabelle zeigt die erfolgreichen.
  */
-function successfulDribbles(player: PlayerWithStats) {
-  return Math.round((player.stats.dribbles * player.stats.dribbleSuccessRate) / 100);
+const STAT_VALUE: Record<ScoreStatKey, (player: PlayerWithStats) => number> = {
+  goals: (p) => p.stats.goals,
+  assists: (p) => p.stats.assists,
+  bigChancesCreated: (p) => p.stats.bigChancesCreated,
+  shotsOnTarget: (p) => p.stats.shotsOnTarget,
+  touchesInBox: (p) => p.stats.touchesInBox,
+  successfulCrosses: (p) => p.stats.successfulCrosses,
+  successfulDribbles: (p) => Math.round((p.stats.dribbles * p.stats.dribbleSuccessRate) / 100),
+  chancesCreated: (p) => p.stats.chancesCreated,
+};
+
+/** Die Zeilen der Score-Tabelle fuer einen Spieler (PRD 7.4). */
+export function scoreRows(player: PlayerWithStats, position: PlayerPosition): ScoreRow[] {
+  return SCORE_MODEL[position].map(({ key, factor }) => {
+    const count = STAT_VALUE[key](player);
+    return {
+      label: SCORE_STAT_LABELS[key],
+      count,
+      factor,
+      score: count * factor,
+    };
+  });
 }
 
-/** Die vier Zeilen der Score-Tabelle fuer einen Spieler (PRD 7.4). */
-export function scoreRows(player: PlayerWithStats, position: PlayerPosition): ScoreRow[] {
-  const factors = SCORE_FACTORS[position];
-  const counts = {
-    goals: player.stats.goals,
-    assists: player.stats.assists,
-    chancesCreated: player.stats.chancesCreated,
-    dribbles: successfulDribbles(player),
-  };
-
-  return (Object.keys(counts) as (keyof typeof counts)[]).map((key) => ({
-    label: SCORE_ROW_LABELS[key],
-    count: counts[key],
-    factor: factors[key],
-    score: counts[key] * factors[key],
-  }));
+/**
+ * Bei gleichem Score gewinnt, wer dafuer weniger gebraucht hat: erst weniger
+ * Spiele, dann weniger Minuten. Wer dieselbe Leistung in weniger Zeit bringt,
+ * war effizienter (siehe docs/score-modell.md §7).
+ */
+function compareEntries(a: RankedPlayer, b: RankedPlayer) {
+  if (b.score !== a.score) return b.score - a.score;
+  if (a.player.stats.appearances !== b.player.stats.appearances) {
+    return a.player.stats.appearances - b.player.stats.appearances;
+  }
+  return a.player.stats.minutesPlayed - b.player.stats.minutesPlayed;
 }
 
 /**
@@ -47,7 +62,7 @@ export function buildRanking(
         rank: 0,
       };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort(compareEntries)
     .slice(0, limit)
     .map((entry, index) => ({ ...entry, rank: index + 1 }));
 }
@@ -57,7 +72,7 @@ export function formatScore(value: number) {
   return value.toLocaleString('de-DE', { maximumFractionDigits: 2 });
 }
 
-/** Faktor-Spalte der Tabelle: x2, x0,5, x0,25. */
+/** Faktor-Spalte der Tabelle: x10, x0,3, x0,05. */
 export function formatFactor(value: number) {
   return `x${formatScore(value)}`;
 }

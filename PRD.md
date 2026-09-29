@@ -533,16 +533,23 @@ type PlayerPosition =
 
 Vereinfachte, transparente Formel. Bei Tap auf einen Ranking-Eintrag wird die Rechnung offengelegt.
 
-**Beispiel Stürmer:**
+**Anker:** Jede Aktion wird danach bewertet, wie viel sie in Toren wert ist. Ein Tor = 1,0, in Punkten ×10. **Die vollständige Herleitung jedes einzelnen Faktors steht in [`docs/score-modell.md`](docs/score-modell.md) — Faktoren nur zusammen mit der Begründung dort ändern.**
+
+**Stürmer (ST):**
 ```
-Score = (Tore × 2) + (Vorlagen × 1) + (Kreierte Chancen × 0,5) + (Erfolgr. Dribblings × 0,25)
+Score = (Tore × 10) + (Torvorlagen × 7) + (Großchancen kreiert × 0,3)
+      + (Schüsse aufs Tor × 0,2) + (Kontakte im gegn. Strafraum × 0,05)
 ```
 
-Gewichtungsfaktoren variieren je nach Position und liegen in `SCORE_FACTORS` (`constants/positions.ts`). Nur die ST-Faktoren sind fachlich festgelegt; LF, RF, OM, ZM, DM, IV, LV, RV und TW sind Platzhalter.
+**Flügel (LF, RF):** wie ST, nur die letzten beiden Kategorien: Erfolgr. Flanken × 0,3, Erfolgr. Dribblings × 0,05.
 
-**Offene Frage TW:** Die vier Score-Kategorien (Tore, Vorlagen, Kreierte Chancen, Erfolgr. Dribblings) passen für Torhüter fachlich nicht. TW braucht eigene Kategorien (Paraden, Gegentore, Clean Sheets). Bis dahin nutzt TW dieselben vier Zeilen mit Platzhalter-Faktoren.
+Kategorien **und** Faktoren variieren je Position und liegen in `SCORE_MODEL` (`constants/positions.ts`). ST und Flügel sind hergeleitet; OM, ZM, DM, IV, LV, RV und TW laufen noch mit dem Platzhalter-Modell der ersten Fassung.
 
-Der Score wird in Phase 2 nicht gespeichert, sondern in `lib/rankings.ts` aus den Stats und den Faktoren gerechnet. So kann die aufgeklappte Tabelle nie etwas anderes zeigen als den Score. Erfolgreiche Dribblings = Dribbling-Versuche × Erfolgsquote.
+**Gleichstand:** Bei gleichem Score gewinnt, wer weniger **Spiele** gebraucht hat, dann wer weniger **Minuten** gespielt hat. Wer dieselbe Leistung in weniger Zeit bringt, war effizienter.
+
+**Offene Frage TW:** Für Torhüter passt keine dieser Kategorien. TW braucht eigene (Paraden, Gegentore, Clean Sheets) und läuft bis dahin mit dem Platzhalter-Modell.
+
+Der Score wird in Phase 2 nicht gespeichert, sondern in `lib/rankings.ts` aus den Stats und dem Score-Modell gerechnet. So kann die aufgeklappte Tabelle nie etwas anderes zeigen als den Score. Erfolgreiche Dribblings = Dribbling-Versuche × Erfolgsquote.
 
 Rankings werden 1x täglich pro Position batch-vorberechnet und aus der Supabase-DB serviert (siehe §10.2).
 
@@ -737,6 +744,8 @@ Damit Claude Code diese Features nicht spekulativ mitbaut:
 - Profi-Analyse-Tools
 - Web-App
 - Sharing (Stat-Karten als Bild teilen)
+- Begründung der Score-Faktoren in der App abrufbar machen (Inhalt siehe `docs/score-modell.md`)
+- Elfmetertore niedriger gewichten als Tore aus dem Spiel (siehe `docs/score-modell.md` §8)
 - Sponsoring von Rankings, Brand-Placements als Feature
 - Creator-Kooperationen als App-Feature
 - Torhüter-Ranking mit eigenen Score-Kategorien (TW ist im Filter bereits enthalten, siehe §7.4)

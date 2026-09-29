@@ -43,39 +43,102 @@ export const POSITION_GROUP: Record<PlayerPosition, PositionGroup> = {
   TW: 'goalkeeper',
 };
 
-/** Die vier Kategorien, aus denen sich der Rankings-Score zusammensetzt (PRD 7.4). */
-export interface ScoreFactors {
-  goals: number;
-  assists: number;
-  chancesCreated: number;
-  dribbles: number;
+/**
+ * Platzhalter-Modell der ersten Fassung: vier Kategorien, nur die Faktoren
+ * unterscheiden sich. Wird Position fuer Position durch ein hergeleitetes
+ * Modell ersetzt (siehe docs/score-modell.md).
+ */
+function placeholderModel(
+  goals: number,
+  assists: number,
+  chancesCreated: number,
+  dribbles: number
+): ScoreCategory[] {
+  return [
+    { key: 'goals', factor: goals },
+    { key: 'assists', factor: assists },
+    { key: 'chancesCreated', factor: chancesCreated },
+    { key: 'successfulDribbles', factor: dribbles },
+  ];
 }
 
 /**
- * Gewichtung pro Position. Nur ST ist in der PRD (7.4) festgelegt:
- * Score = Tore x2 + Vorlagen x1 + Kreierte Chancen x0,5 + Erfolgr. Dribblings x0,25.
- * Die uebrigen Positionen sind bis zur fachlichen Festlegung Platzhalter. Fuer
- * TW passen diese vier Kategorien fachlich nicht - ein Torhueter braucht eigene
- * (Paraden, Gegentore, Weisse Westen), sobald die Kategorien je Position
- * variabel sind.
+ * Stats, aus denen sich ein Score zusammensetzen kann. Die Werte dazu liefert
+ * `STAT_VALUE` in `lib/rankings.ts`.
  */
-export const SCORE_FACTORS: Record<PlayerPosition, ScoreFactors> = {
-  ST: { goals: 2, assists: 1, chancesCreated: 0.5, dribbles: 0.25 },
-  LF: { goals: 1.5, assists: 1.5, chancesCreated: 0.75, dribbles: 0.5 },
-  RF: { goals: 1.5, assists: 1.5, chancesCreated: 0.75, dribbles: 0.5 },
-  OM: { goals: 1.5, assists: 2, chancesCreated: 1, dribbles: 0.5 },
-  ZM: { goals: 1.25, assists: 1.75, chancesCreated: 1, dribbles: 0.5 },
-  DM: { goals: 1, assists: 1.5, chancesCreated: 0.75, dribbles: 0.25 },
-  IV: { goals: 1, assists: 1, chancesCreated: 0.5, dribbles: 0.25 },
-  LV: { goals: 1.25, assists: 1.75, chancesCreated: 0.75, dribbles: 0.5 },
-  RV: { goals: 1.25, assists: 1.75, chancesCreated: 0.75, dribbles: 0.5 },
-  TW: { goals: 1, assists: 1, chancesCreated: 0.5, dribbles: 0.25 },
+export type ScoreStatKey =
+  | 'goals'
+  | 'assists'
+  | 'bigChancesCreated'
+  | 'shotsOnTarget'
+  | 'touchesInBox'
+  | 'successfulCrosses'
+  | 'successfulDribbles'
+  | 'chancesCreated';
+
+/** Beschriftung der Zeile in der Score-Tabelle. */
+export const SCORE_STAT_LABELS: Record<ScoreStatKey, string> = {
+  goals: 'Tore',
+  assists: 'Torvorlagen',
+  bigChancesCreated: 'Großchancen kreiert',
+  shotsOnTarget: 'Schüsse aufs Tor',
+  touchesInBox: 'Kontakte im Strafraum',
+  successfulCrosses: 'Erfolgr. Flanken',
+  successfulDribbles: 'Erfolgr. Dribblings',
+  chancesCreated: 'Kreierte Chancen',
 };
 
-/** Zeilenbeschriftung der Score-Tabelle, Reihenfolge wie im Figma (Node 256:138). */
-export const SCORE_ROW_LABELS: Record<keyof ScoreFactors, string> = {
-  goals: 'Tore',
-  assists: 'Vorlagen',
-  chancesCreated: 'Kreierte Chancen',
-  dribbles: 'Erfolgr. Dribblings',
+export interface ScoreCategory {
+  key: ScoreStatKey;
+  factor: number;
+}
+
+/**
+ * Score-Modell pro Position: welche Kategorien zaehlen und mit welchem Faktor.
+ * Ein Tor ist 10 Punkte, alles andere misst sich daran.
+ *
+ * **Jeder Faktor ist begruendet — die Herleitung steht in
+ * `docs/score-modell.md` und gehoert zu PRD §7.4. Faktoren hier nicht ohne
+ * Begruendung dort aendern.**
+ *
+ * Kurzfassung: Tore und Torvorlagen tragen den Score (Torwert 1,0 und 0,7).
+ * Die uebrigen drei Kategorien messen Gefahr statt Ertrag; sie zaehlen
+ * Aktionen mit, die schon in den Toren stecken, und sind deshalb bewusst
+ * klein gehalten - ein Schuss aufs Tor, der nicht reingeht, ist 1/50 Tor wert.
+ *
+ * ST und Fluegel sind abgestimmt. Die uebrigen Positionen sind Platzhalter aus
+ * der ersten Fassung und noch nicht hergeleitet.
+ */
+export const SCORE_MODEL: Record<PlayerPosition, ScoreCategory[]> = {
+  ST: [
+    { key: 'goals', factor: 10 },
+    { key: 'assists', factor: 7 },
+    { key: 'bigChancesCreated', factor: 0.3 },
+    { key: 'shotsOnTarget', factor: 0.2 },
+    { key: 'touchesInBox', factor: 0.05 },
+  ],
+  LF: [
+    { key: 'goals', factor: 10 },
+    { key: 'assists', factor: 7 },
+    { key: 'bigChancesCreated', factor: 0.3 },
+    { key: 'successfulCrosses', factor: 0.3 },
+    { key: 'successfulDribbles', factor: 0.05 },
+  ],
+  RF: [
+    { key: 'goals', factor: 10 },
+    { key: 'assists', factor: 7 },
+    { key: 'bigChancesCreated', factor: 0.3 },
+    { key: 'successfulCrosses', factor: 0.3 },
+    { key: 'successfulDribbles', factor: 0.05 },
+  ],
+  // --- ab hier Platzhalter, noch nicht hergeleitet ---
+  OM: placeholderModel(1.5, 2, 1, 0.5),
+  ZM: placeholderModel(1.25, 1.75, 1, 0.5),
+  DM: placeholderModel(1, 1.5, 0.75, 0.25),
+  IV: placeholderModel(1, 1, 0.5, 0.25),
+  LV: placeholderModel(1.25, 1.75, 0.75, 0.5),
+  RV: placeholderModel(1.25, 1.75, 0.75, 0.5),
+  // Fuer den Torwart passt keine dieser Kategorien - er braucht eigene
+  // (Paraden, Gegentore, Weisse Westen), siehe docs/score-modell.md.
+  TW: placeholderModel(1, 1, 0.5, 0.25),
 };

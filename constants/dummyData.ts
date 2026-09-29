@@ -22,24 +22,27 @@ export const DUMMY_MBAPPE: PlayerWithStats = {
   },
   number: 9,
   stats: {
-    goals: 30,
-    assists: 7,
-    xG: 28,
-    xA: 6,
-    shots: 95,
-    shotsOnTarget: 52,
-    dribbles: 89,
-    dribbleSuccessRate: 56.4,
-    passes: 412,
-    passSuccessRate: 78.2,
-    chancesCreated: 34,
-    bigChancesCreated: 12,
+    goals: 25,
+    assists: 5,
+    xG: 23.95,
+    xA: 6.2,
+    shots: 146,
+    shotsOnTarget: 63,
+    touchesInBox: 270,
+    successfulCrosses: 6,
+    dribbles: 149,
+    dribbleSuccessRate: 52.3,
+    passes: 998,
+    passSuccessRate: 86.5,
+    chancesCreated: 65,
+    bigChancesCreated: 8,
     tackles: 18,
     tackleSuccessRate: 55,
-    interceptions: 8,
+    interceptions: 2,
     clearances: 2,
-    appearances: 25,
-    rating: 7.9,
+    appearances: 31,
+    minutesPlayed: 2604,
+    rating: 7.56,
   },
 };
 
@@ -62,24 +65,27 @@ export const DUMMY_KANE: PlayerWithStats = {
   },
   number: 9,
   stats: {
-    goals: 24,
-    assists: 9,
-    xG: 22,
-    xA: 8,
-    shots: 78,
-    shotsOnTarget: 41,
-    dribbles: 34,
-    dribbleSuccessRate: 41.2,
-    passes: 634,
+    goals: 36,
+    assists: 5,
+    xG: 26.87,
+    xA: 4.27,
+    shots: 93,
+    shotsOnTarget: 68,
+    touchesInBox: 230,
+    successfulCrosses: 10,
+    dribbles: 62,
+    dribbleSuccessRate: 50,
+    passes: 720,
     passSuccessRate: 82.5,
-    chancesCreated: 41,
-    bigChancesCreated: 15,
+    chancesCreated: 40,
+    bigChancesCreated: 18,
     tackles: 12,
     tackleSuccessRate: 50,
-    interceptions: 5,
+    interceptions: 3,
     clearances: 3,
-    appearances: 23,
-    rating: 7.6,
+    appearances: 31,
+    minutesPlayed: 2382,
+    rating: 7.84,
   },
 };
 
@@ -108,7 +114,9 @@ export const DUMMY_VINICIUS: PlayerWithStats = {
     xA: 10,
     shots: 72,
     shotsOnTarget: 38,
-    dribbles: 134,
+    touchesInBox: 195,
+    successfulCrosses: 41,
+    dribbles: 214,
     dribbleSuccessRate: 62.7,
     passes: 523,
     passSuccessRate: 74.8,
@@ -118,7 +126,8 @@ export const DUMMY_VINICIUS: PlayerWithStats = {
     tackleSuccessRate: 48,
     interceptions: 12,
     clearances: 4,
-    appearances: 24,
+    appearances: 30,
+    minutesPlayed: 2390,
     rating: 7.8,
   },
 };
@@ -149,49 +158,63 @@ export const DUMMY_CHATS: Chat[] = [
 
 /**
  * Rohdaten fuer die Rankings-Liste. Der Score wird nicht gespeichert, sondern
- * in `lib/rankings.ts` aus diesen Stats und den Faktoren der Position
+ * in `lib/rankings.ts` aus diesen Stats und dem Score-Modell der Position
  * gerechnet - so stimmt die aufgeklappte Tabelle immer mit dem Score ueberein.
+ *
+ * Mbappé, Kane und Lautaro tragen echte Saisonzahlen 25/26 (Quellen siehe
+ * docs/score-modell.md §9), die uebrigen sind plausibel erfunden.
  */
-function makeRankingPlayer(
-  base: PlayerWithStats,
-  overrides: {
-    id: number;
-    name: string;
-    nationality: string;
-    nationalityFlag: string;
-    teamId: number;
-    teamName: string;
-    position: PlayerPosition;
-    goals: number;
-    assists: number;
-    chancesCreated: number;
-    dribbles: number;
-    dribbleSuccessRate: number;
-  }
-): PlayerWithStats {
-  const [firstname, ...rest] = overrides.name.split(' ');
+interface RankingPlayerInput {
+  id: number;
+  name: string;
+  nationality: string;
+  nationalityFlag: string;
+  teamId: number;
+  teamName: string;
+  position: PlayerPosition;
+  goals: number;
+  assists: number;
+  bigChancesCreated: number;
+  shotsOnTarget: number;
+  touchesInBox: number;
+  successfulCrosses: number;
+  chancesCreated: number;
+  dribbles: number;
+  dribbleSuccessRate: number;
+  appearances: number;
+  minutesPlayed: number;
+}
+
+function makeRankingPlayer(base: PlayerWithStats, input: RankingPlayerInput): PlayerWithStats {
+  const [firstname, ...rest] = input.name.split(' ');
   return {
     ...base,
-    id: overrides.id,
-    name: overrides.name,
+    id: input.id,
+    name: input.name,
     firstname,
     lastname: rest.join(' '),
-    nationality: overrides.nationality,
-    nationalityFlag: overrides.nationalityFlag,
-    position: overrides.position,
-    photo: `https://media.api-sports.io/football/players/${overrides.id}.png`,
+    nationality: input.nationality,
+    nationalityFlag: input.nationalityFlag,
+    position: input.position,
+    photo: `https://media.api-sports.io/football/players/${input.id}.png`,
     team: {
-      id: overrides.teamId,
-      name: overrides.teamName,
-      logo: `https://media.api-sports.io/football/teams/${overrides.teamId}.png`,
+      id: input.teamId,
+      name: input.teamName,
+      logo: `https://media.api-sports.io/football/teams/${input.teamId}.png`,
     },
     stats: {
       ...base.stats,
-      goals: overrides.goals,
-      assists: overrides.assists,
-      chancesCreated: overrides.chancesCreated,
-      dribbles: overrides.dribbles,
-      dribbleSuccessRate: overrides.dribbleSuccessRate,
+      goals: input.goals,
+      assists: input.assists,
+      bigChancesCreated: input.bigChancesCreated,
+      shotsOnTarget: input.shotsOnTarget,
+      touchesInBox: input.touchesInBox,
+      successfulCrosses: input.successfulCrosses,
+      chancesCreated: input.chancesCreated,
+      dribbles: input.dribbles,
+      dribbleSuccessRate: input.dribbleSuccessRate,
+      appearances: input.appearances,
+      minutesPlayed: input.minutesPlayed,
     },
   };
 }
@@ -199,14 +222,14 @@ function makeRankingPlayer(
 const RANKING_ST: PlayerWithStats[] = [
   DUMMY_MBAPPE,
   DUMMY_KANE,
-  makeRankingPlayer(DUMMY_MBAPPE, { id: 1100, name: 'Erling Haaland', nationality: 'Norwegen', nationalityFlag: '🇳🇴', teamId: 50, teamName: 'Manchester City', position: 'ST', goals: 27, assists: 5, chancesCreated: 21, dribbles: 41, dribbleSuccessRate: 48.8 }),
-  makeRankingPlayer(DUMMY_KANE, { id: 521, name: 'Lautaro Martínez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 505, teamName: 'Inter Mailand', position: 'ST', goals: 20, assists: 6, chancesCreated: 28, dribbles: 55, dribbleSuccessRate: 50.9 }),
-  makeRankingPlayer(DUMMY_KANE, { id: 306, name: 'Viktor Gyökeres', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 42, teamName: 'Arsenal', position: 'ST', goals: 22, assists: 4, chancesCreated: 19, dribbles: 63, dribbleSuccessRate: 52.4 }),
-  makeRankingPlayer(DUMMY_KANE, { id: 909, name: 'Robert Lewandowski', nationality: 'Polen', nationalityFlag: '🇵🇱', teamId: 529, teamName: 'FC Barcelona', position: 'ST', goals: 19, assists: 5, chancesCreated: 22, dribbles: 30, dribbleSuccessRate: 43.3 }),
-  makeRankingPlayer(DUMMY_MBAPPE, { id: 2295, name: 'Victor Osimhen', nationality: 'Nigeria', nationalityFlag: '🇳🇬', teamId: 645, teamName: 'Galatasaray', position: 'ST', goals: 18, assists: 3, chancesCreated: 16, dribbles: 48, dribbleSuccessRate: 50.0 }),
-  makeRankingPlayer(DUMMY_KANE, { id: 1485, name: 'Alexander Isak', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 40, teamName: 'FC Liverpool', position: 'ST', goals: 17, assists: 6, chancesCreated: 24, dribbles: 58, dribbleSuccessRate: 55.2 }),
-  makeRankingPlayer(DUMMY_MBAPPE, { id: 1483, name: 'Julián Álvarez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 530, teamName: 'Atlético Madrid', position: 'ST', goals: 16, assists: 7, chancesCreated: 31, dribbles: 66, dribbleSuccessRate: 51.5 }),
-  makeRankingPlayer(DUMMY_KANE, { id: 2413, name: 'Serhou Guirassy', nationality: 'Guinea', nationalityFlag: '🇬🇳', teamId: 165, teamName: 'Borussia Dortmund', position: 'ST', goals: 15, assists: 4, chancesCreated: 17, dribbles: 35, dribbleSuccessRate: 45.7 }),
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 1100, name: 'Erling Haaland', nationality: 'Norwegen', nationalityFlag: '🇳🇴', teamId: 50, teamName: 'Manchester City', position: 'ST', goals: 29, assists: 3, bigChancesCreated: 6, shotsOnTarget: 59, touchesInBox: 255, successfulCrosses: 2, chancesCreated: 22, dribbles: 45, dribbleSuccessRate: 48.9, appearances: 30, minutesPlayed: 2520 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 521, name: 'Lautaro Martínez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 505, teamName: 'Inter Mailand', position: 'ST', goals: 17, assists: 6, bigChancesCreated: 12, shotsOnTarget: 39, touchesInBox: 200, successfulCrosses: 3, chancesCreated: 30, dribbles: 44, dribbleSuccessRate: 47.7, appearances: 30, minutesPlayed: 2178 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 306, name: 'Viktor Gyökeres', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 42, teamName: 'Arsenal', position: 'ST', goals: 19, assists: 4, bigChancesCreated: 7, shotsOnTarget: 44, touchesInBox: 210, successfulCrosses: 4, chancesCreated: 24, dribbles: 71, dribbleSuccessRate: 52.1, appearances: 32, minutesPlayed: 2610 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 909, name: 'Robert Lewandowski', nationality: 'Polen', nationalityFlag: '🇵🇱', teamId: 529, teamName: 'FC Barcelona', position: 'ST', goals: 18, assists: 5, bigChancesCreated: 9, shotsOnTarget: 41, touchesInBox: 188, successfulCrosses: 3, chancesCreated: 27, dribbles: 28, dribbleSuccessRate: 42.9, appearances: 29, minutesPlayed: 2050 }),
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 2295, name: 'Victor Osimhen', nationality: 'Nigeria', nationalityFlag: '🇳🇬', teamId: 645, teamName: 'Galatasaray', position: 'ST', goals: 21, assists: 3, bigChancesCreated: 5, shotsOnTarget: 47, touchesInBox: 205, successfulCrosses: 2, chancesCreated: 18, dribbles: 52, dribbleSuccessRate: 50, appearances: 28, minutesPlayed: 2310 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 1485, name: 'Alexander Isak', nationality: 'Schweden', nationalityFlag: '🇸🇪', teamId: 40, teamName: 'FC Liverpool', position: 'ST', goals: 16, assists: 6, bigChancesCreated: 10, shotsOnTarget: 43, touchesInBox: 178, successfulCrosses: 5, chancesCreated: 29, dribbles: 66, dribbleSuccessRate: 55.2, appearances: 31, minutesPlayed: 2415 }),
+  makeRankingPlayer(DUMMY_MBAPPE, { id: 1483, name: 'Julián Álvarez', nationality: 'Argentinien', nationalityFlag: '🇦🇷', teamId: 530, teamName: 'Atlético Madrid', position: 'ST', goals: 15, assists: 8, bigChancesCreated: 14, shotsOnTarget: 40, touchesInBox: 172, successfulCrosses: 7, chancesCreated: 38, dribbles: 84, dribbleSuccessRate: 51.5, appearances: 32, minutesPlayed: 2640 }),
+  makeRankingPlayer(DUMMY_KANE, { id: 2413, name: 'Serhou Guirassy', nationality: 'Guinea', nationalityFlag: '🇬🇳', teamId: 165, teamName: 'Borussia Dortmund', position: 'ST', goals: 14, assists: 4, bigChancesCreated: 6, shotsOnTarget: 75, touchesInBox: 240, successfulCrosses: 3, chancesCreated: 21, dribbles: 40, dribbleSuccessRate: 45, appearances: 30, minutesPlayed: 2400 }),
 ];
 
 /**
@@ -217,7 +240,7 @@ function placeholderRanking(position: PlayerPosition): PlayerWithStats[] {
   return Array.from({ length: 10 }, (_, index) =>
     makeRankingPlayer(DUMMY_VINICIUS, {
       id: 90000 + POSITIONS.indexOf(position) * 100 + index,
-      name: `Vorname Nachname`,
+      name: 'Vorname Nachname',
       nationality: 'Land',
       nationalityFlag: '🏳️',
       teamId: 0,
@@ -225,9 +248,15 @@ function placeholderRanking(position: PlayerPosition): PlayerWithStats[] {
       position,
       goals: 20 - index,
       assists: 12 - index,
+      bigChancesCreated: 14 - index,
+      shotsOnTarget: 50 - index * 2,
+      touchesInBox: 200 - index * 8,
+      successfulCrosses: 45 - index * 3,
       chancesCreated: 40 - index * 2,
-      dribbles: 90 - index * 5,
+      dribbles: 150 - index * 8,
       dribbleSuccessRate: 60 - index,
+      appearances: 30,
+      minutesPlayed: 2400,
     })
   );
 }

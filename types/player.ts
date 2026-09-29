@@ -27,6 +27,10 @@ export interface PlayerStats {
   xA: number;
   shots: number;
   shotsOnTarget: number;
+  /** Ballkontakte im gegnerischen Strafraum (Score-Kategorie ST). */
+  touchesInBox: number;
+  /** Erfolgreiche Flanken (Score-Kategorie Fluegel). */
+  successfulCrosses: number;
   dribbles: number;
   dribbleSuccessRate: number;
   passes: number;
@@ -41,6 +45,8 @@ export interface PlayerStats {
   conceded?: number;
   cleanSheets?: number;
   appearances: number;
+  /** Gespielte Minuten - zweite Stufe beim Gleichstand im Ranking. */
+  minutesPlayed: number;
   rating: number;
 }
 
