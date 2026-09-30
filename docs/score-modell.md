@@ -97,15 +97,40 @@ beruht. Ueblich sind in der Analytik Werte zwischen 0,5 und 0,75.
 Innerhalb des Blocks stehen die Faktoren **im Verhaeltnis ihrer echten
 Verwertungsquoten**, der ganze Block wird dann gemeinsam auf ~10 % gedaempft.
 
-Die Faktoren stehen **im Verhaeltnis der echten Quoten** — eine Grosschance ist
-mehr wert als ein Schuss aufs Tor, dieser mehr als ein Ballkontakt. Der ganze
-Block wird dann gemeinsam so gedaempft, dass er rund 10 % des Scores ausmacht.
+Fuer den ganzen Block gilt **eine Regel, an jeder Position dieselbe**:
 
-| Stat | Echte Quote | Quelle | Verhaeltnis | Faktor |
+```
+Faktor = 0,6 × Quote, mit der die Aktion zum Tor fuehrt
+```
+
+Herkunft der 0,6: Eine Aktion mit Quote q ist q Tore wert, also 10q Punkte.
+Davon bleiben 6 % — die Daempfung, weil der Block Aktionen mitzaehlt, die schon
+in den Toren stecken (§2). Sie ist so gewaehlt, dass der Block bei einem
+Stuermer rund 10 % des Scores ausmacht.
+
+**Dieselbe Aktion ist damit ueberall gleich viel wert.** Eine Grosschance zaehlt
+beim Stuermer wie beim Fluegelspieler 0,25 — was ein Nutzer zu Recht erwartet.
+
+| Stat | Quote → Tor | Quelle | 0,6 × Quote | Faktor |
 |---|---|---|---|---|
-| Grosschance kreiert | 38 % werden zum Tor | Opta | 3,8 | **×0,3** |
-| Schuss aufs Tor | 33 % gehen rein | Premier League, Schnitt | 3,3 | **×0,2** |
-| Ballkontakt im gegn. Strafraum | ~9 % (25 Tore / 270 Kontakte, Mbappé) | eigene Daten | 0,9 | **×0,05** |
+| Grosschance kreiert | 38 % | Opta | 0,23 | **×0,25** |
+| Schuss aufs Tor | 33 % | Premier League, Schnitt | 0,20 | **×0,2** |
+| Ballkontakt im gegn. Strafraum | ~9 % | eigene Daten (Mbappé) | 0,054 | **×0,05** |
+| Erfolgreiche Flanke | ~7 % | hergeleitet, siehe unten | 0,042 | **×0,05** |
+| Erfolgreiche Dribblings | ~5 % | xT-Literatur, siehe unten | 0,030 | **×0,03** |
+
+**Herleitung erfolgreiche Flanke:** Nur 1 bis 2 % **aller** Flanken fuehren zu
+einem Tor (Premier League: 1,09 % aus dem Spiel, europaweit 1,76 %; rund 73
+Flanken pro Tor). Unsere Stat zaehlt aber nur die **angekommenen** Flanken, und
+das sind je nach Spieler 15 bis 28 % der Versuche. Rechnet man das um:
+1,4 % ÷ 20 % ≈ **7 %** pro angekommener Flanke.
+
+**Herleitung erfolgreiche Dribblings:** Hier gibt es keine veroeffentlichte
+Quote. Ein gelungenes Dribbling ist eine Fortschritts-Aktion wie ein
+Strafraumkontakt (~9 %), findet aber oft weit vom Tor statt und ist deshalb
+niedriger anzusetzen. Die xT-Literatur bewertet einzelne Progressions-Aktionen
+mit 0,02 bis 0,03 Toren. Angesetzt: **5 %**. Unsicherster Wert im Modell,
+gleichzeitig der kleinste Faktor.
 
 Zum Vergleich: ein Schuss **insgesamt** (nicht nur aufs Tor) geht nur zu rund
 10 % rein, eine herausgespielte Chance wird zu rund 10 % zur Vorlage.
@@ -127,7 +152,7 @@ Abstand der kleinste Faktor, ein Fehler wirkt sich also kaum aus.
 |---|---|
 | Tore | ×10 |
 | Torvorlagen | ×7 |
-| Grosschancen kreiert | ×0,3 |
+| Grosschancen kreiert | ×0,25 |
 | Schuesse aufs Tor | ×0,2 |
 | Ballkontakte im gegnerischen Strafraum | ×0,05 |
 
@@ -153,13 +178,33 @@ trotzdem auf Platz 10. Genau so soll der Gefahr-Block wirken.
 |---|---|
 | Tore | ×10 |
 | Torvorlagen | ×7 |
-| Grosschancen kreiert | ×0,3 |
-| Erfolgreiche Flanken | ×0,3 |
-| Erfolgreiche Dribblings | ×0,05 |
+| Grosschancen kreiert | ×0,25 |
+| Erfolgreiche Flanken | ×0,05 |
+| Erfolgreiche Dribblings | ×0,03 |
 
-Die beiden letzten Faktoren sind **vorlaeufig**. Mbappé ist kein Fluegelspieler
-und hat nur 6 erfolgreiche Flanken — fuer eine saubere Herleitung fehlen Daten
-von echten Fluegelspielern (z. B. Vinícius, Salah).
+**Probe an vier Fluegelspielern** (Saisonzahlen 25/26, Fotmob):
+
+| | Tore | Vorlagen | Grosschancen | Flanken | Dribblings | Score |
+|---|---|---|---|---|---|---|
+| Olise | 15 → 150 | 19 → 133 | 27 → 6,75 | 31 → 1,55 | 65 → 1,95 | **293,3** |
+| Yamal | 16 → 160 | 11 → 77 | 26 → 6,5 | 23 → 1,15 | 133 → 3,99 | **248,6** |
+| Vinícius | 16 → 160 | 5 → 35 | 7 → 1,75 | 9 → 0,45 | 87 → 2,61 | **199,8** |
+| Gordon | 6 → 60 | 2 → 14 | 5 → 1,25 | 15 → 0,75 | 33 → 0,99 | **77,0** |
+
+Die Reihenfolge ist plausibel, und die drei Top-Spieler liegen deutlich vor
+Gordon — so, wie es der fachlichen Einschaetzung entspricht.
+
+**Wichtig zu wissen:** Der Gefahr-Block macht bei Fluegelspielern nur 2 bis 5 %
+aus, beim Stuermer sind es ~10 %. Das ist kein Fehler, sondern das Ergebnis der
+Regel: Flanken und Dribblings sind nun einmal weiter vom Tor entfernt als
+Schuesse und Strafraumkontakte. Wer will, dass sie staerker ins Gewicht fallen,
+muesste die Regel fuer Fluegel brechen — das waere dann eine Produktentscheidung
+und keine Herleitung mehr.
+
+Praktisch heisst das: **Fluegelspieler werden fast ausschliesslich ueber Tore und
+Vorlagen sortiert.** Flanken und Dribblings entscheiden nur, wenn zwei Spieler
+dicht beieinanderliegen. Yamal zieht mit 133 Dribblings gegenueber Vinícius mit
+87 nur 1,4 Punkte heraus — ein Siebtel eines Tores.
 
 ---
 
@@ -196,6 +241,9 @@ Spielzahl, dort greift Stufe 2.
 
 ## 9. Quellen
 
+- Flankenquote (1,09 % Premier League, 1,76 % Europa, ~73 Flanken pro Tor): [Power of Goals](http://thepowerofgoals.blogspot.com/2012/08/the-case-for-crosses.html), [American Soccer Analysis](https://www.americansocceranalysis.com/home/2021/3/11/where-goals-come-from-putting-balls-into-the-box), [StatsBomb](https://blogarchive.statsbomb.com/articles/soccer/how-low-can-you-go-assorted-thoughts-about-crosses/)
+- Expected Threat (Wert einzelner Progressions-Aktionen): [Hudl](https://www.hudl.com/blog/possession-value-models-explained)
+- Spielerdaten Fluegel (Vinícius, Yamal, Olise, Gordon, 25/26): Fotmob
 - Grosschancen-Definition und -Quote (~38 %): [Opta / The Analyst](https://theanalyst.com/articles/opta-football-stats-definitions), [Sportmonks Glossar](https://www.sportmonks.com/glossary/big-chance-conversion-rate/)
 - Schuesse aufs Tor, ~33 % Verwertung; Schuesse gesamt ~10 %: [Sofascore](https://www.sofascore.com/news/a-statistical-breakdown-of-shots-shots-on-target-and-big-chances), [Premier League](https://www.premierleague.com/en/news/4027257)
 - Key Passes und Vorlagen: [StatsBomb](https://blogarchive.statsbomb.com/articles/soccer/assessing-key-passes/), [Sportmonks Glossar](https://www.sportmonks.com/glossary/key-passes/)
@@ -209,3 +257,4 @@ Spielzahl, dort greift Stufe 2.
 |---|---|
 | 29.09.2026 | Erste Fassung: ST und Fluegel, Zwei-Bloecke-Modell |
 | 29.09.2026 | Begruendung fuer den Gefahr-Block geschaerft (Wert eines Fehlschusses statt "Stabilitaet"); im Code umgesetzt |
+| 30.09.2026 | Regel "Faktor = 0,6 × Quote" formuliert. Flanken von 0,3 auf 0,05 und Dribblings von 0,05 auf 0,03 korrigiert (waren geschaetzt, jetzt hergeleitet). Grosschancen von 0,3 auf 0,25 (Rundung an die Regel angepasst). Geprueft an Olise, Yamal, Vinícius und Gordon. |

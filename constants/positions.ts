@@ -102,9 +102,14 @@ export interface ScoreCategory {
  * Begruendung dort aendern.**
  *
  * Kurzfassung: Tore und Torvorlagen tragen den Score (Torwert 1,0 und 0,7).
- * Die uebrigen drei Kategorien messen Gefahr statt Ertrag; sie zaehlen
- * Aktionen mit, die schon in den Toren stecken, und sind deshalb bewusst
- * klein gehalten - ein Schuss aufs Tor, der nicht reingeht, ist 1/50 Tor wert.
+ * Die uebrigen Kategorien messen Gefahr statt Ertrag. Fuer sie gilt eine
+ * einzige Regel, an jeder Position gleich:
+ *
+ *     Faktor = 0,6 x Quote, mit der die Aktion zum Tor fuehrt
+ *
+ * Die 0,6 daempfen den Gefahr-Block, weil er Aktionen mitzaehlt, die schon in
+ * den Toren stecken. Dieselbe Aktion ist damit positionsuebergreifend gleich
+ * viel wert.
  *
  * ST und Fluegel sind abgestimmt. Die uebrigen Positionen sind Platzhalter aus
  * der ersten Fassung und noch nicht hergeleitet.
@@ -113,23 +118,23 @@ export const SCORE_MODEL: Record<PlayerPosition, ScoreCategory[]> = {
   ST: [
     { key: 'goals', factor: 10 },
     { key: 'assists', factor: 7 },
-    { key: 'bigChancesCreated', factor: 0.3 },
-    { key: 'shotsOnTarget', factor: 0.2 },
-    { key: 'touchesInBox', factor: 0.05 },
+    { key: 'bigChancesCreated', factor: 0.25 },  // Quote 38 %
+    { key: 'shotsOnTarget', factor: 0.2 },       // Quote 33 %
+    { key: 'touchesInBox', factor: 0.05 },       // Quote ~9 % (eigene Daten)
   ],
   LF: [
     { key: 'goals', factor: 10 },
     { key: 'assists', factor: 7 },
-    { key: 'bigChancesCreated', factor: 0.3 },
-    { key: 'successfulCrosses', factor: 0.3 },
-    { key: 'successfulDribbles', factor: 0.05 },
+    { key: 'bigChancesCreated', factor: 0.25 },  // Quote 38 %
+    { key: 'successfulCrosses', factor: 0.05 },  // Quote ~7 %
+    { key: 'successfulDribbles', factor: 0.03 }, // Quote ~5 %
   ],
   RF: [
     { key: 'goals', factor: 10 },
     { key: 'assists', factor: 7 },
-    { key: 'bigChancesCreated', factor: 0.3 },
-    { key: 'successfulCrosses', factor: 0.3 },
-    { key: 'successfulDribbles', factor: 0.05 },
+    { key: 'bigChancesCreated', factor: 0.25 },  // Quote 38 %
+    { key: 'successfulCrosses', factor: 0.05 },  // Quote ~7 %
+    { key: 'successfulDribbles', factor: 0.03 }, // Quote ~5 %
   ],
   // --- ab hier Platzhalter, noch nicht hergeleitet ---
   OM: placeholderModel(1.5, 2, 1, 0.5),

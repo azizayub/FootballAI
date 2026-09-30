@@ -537,11 +537,13 @@ Vereinfachte, transparente Formel. Bei Tap auf einen Ranking-Eintrag wird die Re
 
 **Stürmer (ST):**
 ```
-Score = (Tore × 10) + (Torvorlagen × 7) + (Großchancen kreiert × 0,3)
+Score = (Tore × 10) + (Torvorlagen × 7) + (Großchancen kreiert × 0,25)
       + (Schüsse aufs Tor × 0,2) + (Kontakte im gegn. Strafraum × 0,05)
 ```
 
-**Flügel (LF, RF):** wie ST, nur die letzten beiden Kategorien: Erfolgr. Flanken × 0,3, Erfolgr. Dribblings × 0,05.
+**Flügel (LF, RF):** wie ST, nur die letzten beiden Kategorien: Erfolgr. Flanken × 0,05, Erfolgr. Dribblings × 0,03.
+
+Für alle Kategorien außer Toren und Torvorlagen gilt eine Regel: **Faktor = 0,6 × Quote, mit der die Aktion zum Tor führt.** Dieselbe Aktion ist damit an jeder Position gleich viel wert.
 
 Kategorien **und** Faktoren variieren je Position und liegen in `SCORE_MODEL` (`constants/positions.ts`). ST und Flügel sind hergeleitet; OM, ZM, DM, IV, LV, RV und TW laufen noch mit dem Platzhalter-Modell der ersten Fassung.
 

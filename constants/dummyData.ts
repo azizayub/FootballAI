@@ -233,6 +233,26 @@ const RANKING_ST: PlayerWithStats[] = [
 ];
 
 /**
+ * Fluegelspieler mit echten Saisonzahlen 25/26 (Fotmob). Vier Typen, an denen
+ * die Faktoren hergeleitet wurden: Olise als Vorbereiter, Yamal als
+ * Dribbler mit Torgefahr, Vinícius als Vollstrecker ohne Flankenspiel,
+ * Gordon als solider Spieler unterhalb des Top-Niveaus.
+ * Spiele und Minuten von Olise und Gordon sind geschaetzt - die Screenshots
+ * zeigten sie nicht.
+ */
+const RANKING_LF: PlayerWithStats[] = [
+  makeRankingPlayer(DUMMY_VINICIUS, { id: 1094, name: 'Vinícius Júnior', nationality: 'Brasilien', nationalityFlag: '🇧🇷', teamId: 541, teamName: 'Real Madrid', position: 'LF', goals: 16, assists: 5, bigChancesCreated: 7, shotsOnTarget: 46, touchesInBox: 324, successfulCrosses: 9, chancesCreated: 70, dribbles: 195, dribbleSuccessRate: 44.6, appearances: 34, minutesPlayed: 2825 }),
+  makeRankingPlayer(DUMMY_VINICIUS, { id: 2255, name: 'Anthony Gordon', nationality: 'England', nationalityFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', teamId: 34, teamName: 'Newcastle United', position: 'LF', goals: 6, assists: 2, bigChancesCreated: 5, shotsOnTarget: 20, touchesInBox: 84, successfulCrosses: 15, chancesCreated: 26, dribbles: 70, dribbleSuccessRate: 47.1, appearances: 28, minutesPlayed: 2100 }),
+  ...placeholderRanking('LF').slice(2),
+];
+
+const RANKING_RF: PlayerWithStats[] = [
+  makeRankingPlayer(DUMMY_VINICIUS, { id: 2620, name: 'Lamine Yamal', nationality: 'Spanien', nationalityFlag: '🇪🇸', teamId: 529, teamName: 'FC Barcelona', position: 'RF', goals: 16, assists: 11, bigChancesCreated: 26, shotsOnTarget: 37, touchesInBox: 270, successfulCrosses: 23, chancesCreated: 72, dribbles: 243, dribbleSuccessRate: 54.7, appearances: 29, minutesPlayed: 2268 }),
+  makeRankingPlayer(DUMMY_VINICIUS, { id: 2418, name: 'Michael Olise', nationality: 'Frankreich', nationalityFlag: '🇫🇷', teamId: 157, teamName: 'Bayern München', position: 'RF', goals: 15, assists: 19, bigChancesCreated: 27, shotsOnTarget: 50, touchesInBox: 220, successfulCrosses: 31, chancesCreated: 79, dribbles: 138, dribbleSuccessRate: 47.1, appearances: 33, minutesPlayed: 2790 }),
+  ...placeholderRanking('RF').slice(2),
+];
+
+/**
  * Fuer die uebrigen Positionen gibt es in Phase 2 noch keine echten Kader -
  * die Liste wird wie im Figma mit Platzhaltern gefuellt.
  */
@@ -246,15 +266,17 @@ function placeholderRanking(position: PlayerPosition): PlayerWithStats[] {
       teamId: 0,
       teamName: 'Club',
       position,
-      goals: 20 - index,
-      assists: 12 - index,
-      bigChancesCreated: 14 - index,
-      shotsOnTarget: 50 - index * 2,
-      touchesInBox: 200 - index * 8,
-      successfulCrosses: 45 - index * 3,
-      chancesCreated: 40 - index * 2,
-      dribbles: 150 - index * 8,
-      dribbleSuccessRate: 60 - index,
+      // Bewusst unterhalb der echten Spieler, damit die Rangliste nicht von
+      // Platzhaltern angefuehrt wird.
+      goals: 12 - index,
+      assists: 6 - index > 0 ? 6 - index : 1,
+      bigChancesCreated: 10 - index,
+      shotsOnTarget: 32 - index * 2,
+      touchesInBox: 120 - index * 6,
+      successfulCrosses: 20 - index,
+      chancesCreated: 30 - index * 2,
+      dribbles: 90 - index * 5,
+      dribbleSuccessRate: 50 - index,
       appearances: 30,
       minutesPlayed: 2400,
     })
@@ -263,8 +285,8 @@ function placeholderRanking(position: PlayerPosition): PlayerWithStats[] {
 
 export const DUMMY_RANKING_PLAYERS: Record<PlayerPosition, PlayerWithStats[]> = {
   ST: RANKING_ST,
-  LF: placeholderRanking('LF'),
-  RF: placeholderRanking('RF'),
+  LF: RANKING_LF,
+  RF: RANKING_RF,
   OM: placeholderRanking('OM'),
   ZM: placeholderRanking('ZM'),
   DM: placeholderRanking('DM'),
