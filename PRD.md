@@ -545,6 +545,8 @@ Score = (Tore × 10) + (Torvorlagen × 7) + (Großchancen kreiert × 0,25)
 
 Für die Gefahr-Kategorien gilt eine Regel: **Faktor = 0,6 × Quote, mit der die Aktion zum Tor führt.** Dieselbe Aktion ist damit an jeder Position gleich viel wert.
 
+Wie ein neuer Faktor entsteht — Entscheidungsweg, Gegenprobe an echten Spielerdaten und die bereits verworfenen Wege — steht in `docs/score-modell.md` §8b. **Für eine neue Position dort anfangen, nicht bei null.**
+
 **Ausnahme Flanken und Dribblings:** Dort ist die Quoten-Regel bewusst verworfen. Sie beantwortet „Wie nah ist die Aktion am Tor?", die richtige Frage bei einem Flügelspieler lautet aber „Erfüllt er die Kernaufgabe seiner Position?". Beide Werte sind für das MVP nach Fachwissen gesetzt und später mit Analysten gegenzuprüfen (`docs/score-modell.md` §5b).
 
 Kategorien **und** Faktoren variieren je Position und liegen in `SCORE_MODEL` (`constants/positions.ts`). ST und Flügel sind hergeleitet; OM, ZM, DM, IV, LV, RV und TW laufen noch mit dem Platzhalter-Modell der ersten Fassung.

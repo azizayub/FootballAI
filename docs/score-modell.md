@@ -267,6 +267,86 @@ Spielzahl, dort greift Stufe 2.
 
 ---
 
+## 8b. Methodik: Wie ein Faktor entsteht
+
+Diese Reihenfolge hat sich erarbeitet und gilt fuer jede neue Position.
+
+### Schritt 1 — Ist die Aktion Teil der Torkette?
+
+Entscheidend ist, ob die Aktion das Tor **hervorbringt** oder nur daneben
+passiert.
+
+- **Teil der Kette:** Ein Tor *ist* ein Schuss aufs Tor. Eine Grosschance wird
+  zum Tor. → Quoten-Regel anwenden: **Faktor = 0,6 × Quote** (§5).
+- **Nicht Teil der Kette:** Ein Tor ist kein Dribbling. → Rollenerfuellung,
+  Anteil festlegen (§5b und Schritt 3).
+
+### Schritt 2 — Gegenprobe an echten Spielerdaten
+
+Eine recherchierte Quote laesst sich an den Spielerdaten pruefen: Stat geteilt
+durch Tore ergibt die Quote zurueck.
+
+Beispiel Mbappé: 63 Schuesse aufs Tor ÷ 25 Tore = 2,5 → **40 %**. Literaturwert
+33 %. Passt, die Quote ist belastbar.
+
+**Die Streuung zwischen Spielern ist dabei der eigentliche Test.** Eine echte
+Verwertungsquote liegt bei allen Spielern derselben Position nah beieinander.
+Weicht sie stark ab, ist es keine Quote, sondern Spielstil:
+
+| Stat | Streuung ueber vier Fluegelspieler | Urteil |
+|---|---|---|
+| Dribblings je Scorerpunkt | 1,91 (Olise) bis 4,93 (Yamal) | keine Quote |
+| Flanken je Scorerpunkt | 0,43 (Vinícius) bis 1,88 (Gordon) | keine Quote |
+
+### Schritt 3 — Anteil rueckwaerts rechnen
+
+Greift die Quoten-Regel nicht, wird der Faktor aus dem gewuenschten **Anteil am
+Score** berechnet:
+
+```
+Faktor = Ziel-Anteil × Basispunkte ÷ typische Anzahl der Aktion
+```
+
+Die typische Anzahl kommt aus den echten Spielerdaten. Leitplanken: Die
+Rangfolge der Faktoren muss erklaerbar bleiben (eine Flanke darf nicht mehr
+wert sein als eine Grosschance), und der Block soll in derselben
+Groessenordnung liegen wie bei den anderen Positionen (7 bis 12 %).
+
+### Zwei Wege, die geprueft und verworfen wurden
+
+Damit sie nicht noch einmal gegangen werden:
+
+1. **Quote direkt als Faktor** (Schuss aufs Tor ×3,3, weil 33 % reingehen).
+   Zaehlt die Tore doppelt und bezahlt Fehlschuesse zu hoch — der vergeudende
+   Stuermer landet vor dem eiskalten (§2).
+2. **Verhaeltnis Stat ÷ Scorerpunkte als Faktor** (318 Dribblings ÷ 90
+   Scorerpunkte = 3,53 → Faktor 2,83). Das Verhaeltnis ist keine Umwandlung,
+   sondern ein Nebeneinander. Ergebnis waere: eine erfolgreiche Flanke (11,54)
+   ist mehr wert als ein Tor (10), und Gordon kaeme fast nur ueber Flanken auf
+   seinen Score. Brauchbar ist die Rechnung aber als **Haeufigkeitsangabe** fuer
+   Schritt 3 — und als Gegenprobe in Schritt 2.
+
+---
+
+## 8c. Stand und naechste Schritte
+
+**Fertig und hergeleitet:** ST, LF, RF.
+
+**Offen:** OM, ZM, DM, IV, LV, RV, TW — laufen alle noch mit dem
+Platzhalter-Modell der ersten Fassung (vier Kategorien, geschaetzte Faktoren).
+
+**Was fuer die naechste Position gebraucht wird:** Fotmob-Saisonwerte von vier
+Spielern derselben Position, und zwar **verschiedener Typen**. Die Anzahl ist
+weniger wichtig als die Bandbreite — der entscheidende Test ist nicht, ob der
+Beste oben landet, sondern ob zwei unterschiedliche Spielertypen plausibel
+zueinander stehen. Fuer das Mittelfeld etwa: ein Spielgestalter (Rodri), ein
+Box-to-Box (Bellingham), ein Zehner (Wirtz) und einer aus dem Tabellenmittelfeld.
+
+Ebenfalls noetig: die Gesamtminuten und Spiele, sonst laesst sich nicht
+unterscheiden, wer einfach nur mehr gespielt hat.
+
+---
+
 ## 9. Quellen
 
 - Flankenquote (1,09 % Premier League, 1,76 % Europa, ~73 Flanken pro Tor): [Power of Goals](http://thepowerofgoals.blogspot.com/2012/08/the-case-for-crosses.html), [American Soccer Analysis](https://www.americansocceranalysis.com/home/2021/3/11/where-goals-come-from-putting-balls-into-the-box), [StatsBomb](https://blogarchive.statsbomb.com/articles/soccer/how-low-can-you-go-assorted-thoughts-about-crosses/)
@@ -285,5 +365,6 @@ Spielzahl, dort greift Stufe 2.
 |---|---|
 | 29.09.2026 | Erste Fassung: ST und Fluegel, Zwei-Bloecke-Modell |
 | 29.09.2026 | Begruendung fuer den Gefahr-Block geschaerft (Wert eines Fehlschusses statt "Stabilitaet"); im Code umgesetzt |
+| 30.09.2026 | Methodik (§8b) festgehalten: Entscheidungsweg fuer neue Faktoren, Gegenprobe an Spielerdaten, zwei verworfene Wege |
 | 30.09.2026 | Flanken auf 0,2 und Dribblings auf 0,15 gesetzt (§5b): Quoten-Regel verworfen, weil sie die Kernaufgabe der Position nicht abbildet. Fuer das MVP bewusst nach Fachwissen entschieden, spaeter mit Analysten gegenzupruefen. |
 | 30.09.2026 | Regel "Faktor = 0,6 × Quote" formuliert. Flanken von 0,3 auf 0,05 und Dribblings von 0,05 auf 0,03 korrigiert (waren geschaetzt, jetzt hergeleitet). Grosschancen von 0,3 auf 0,25 (Rundung an die Regel angepasst). Geprueft an Olise, Yamal, Vinícius und Gordon. |
