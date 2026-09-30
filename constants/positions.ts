@@ -102,8 +102,8 @@ export interface ScoreCategory {
  * Begruendung dort aendern.**
  *
  * Kurzfassung: Tore und Torvorlagen tragen den Score (Torwert 1,0 und 0,7).
- * Die uebrigen Kategorien messen Gefahr statt Ertrag. Fuer sie gilt eine
- * einzige Regel, an jeder Position gleich:
+ * Die uebrigen Kategorien messen Gefahr statt Ertrag. Fuer sie gilt im
+ * Normalfall eine einzige Regel, an jeder Position gleich:
  *
  *     Faktor = 0,6 x Quote, mit der die Aktion zum Tor fuehrt
  *
@@ -126,15 +126,23 @@ export const SCORE_MODEL: Record<PlayerPosition, ScoreCategory[]> = {
     { key: 'goals', factor: 10 },
     { key: 'assists', factor: 7 },
     { key: 'bigChancesCreated', factor: 0.25 },  // Quote 38 %
-    { key: 'successfulCrosses', factor: 0.05 },  // Quote ~7 %
-    { key: 'successfulDribbles', factor: 0.03 }, // Quote ~5 %
+    // Flanken und Dribblings folgen NICHT der Quoten-Regel, sondern messen
+    // Rollenerfuellung: ein Fluegelspieler, der nicht am Gegenspieler
+    // vorbeikommt, macht seinen Job nicht. Gesetzte Werte, siehe
+    // docs/score-modell.md §5b.
+    { key: 'successfulCrosses', factor: 0.2 },
+    { key: 'successfulDribbles', factor: 0.15 },
   ],
   RF: [
     { key: 'goals', factor: 10 },
     { key: 'assists', factor: 7 },
     { key: 'bigChancesCreated', factor: 0.25 },  // Quote 38 %
-    { key: 'successfulCrosses', factor: 0.05 },  // Quote ~7 %
-    { key: 'successfulDribbles', factor: 0.03 }, // Quote ~5 %
+    // Flanken und Dribblings folgen NICHT der Quoten-Regel, sondern messen
+    // Rollenerfuellung: ein Fluegelspieler, der nicht am Gegenspieler
+    // vorbeikommt, macht seinen Job nicht. Gesetzte Werte, siehe
+    // docs/score-modell.md §5b.
+    { key: 'successfulCrosses', factor: 0.2 },
+    { key: 'successfulDribbles', factor: 0.15 },
   ],
   // --- ab hier Platzhalter, noch nicht hergeleitet ---
   OM: placeholderModel(1.5, 2, 1, 0.5),

@@ -116,21 +116,57 @@ beim Stuermer wie beim Fluegelspieler 0,25 — was ein Nutzer zu Recht erwartet.
 | Grosschance kreiert | 38 % | Opta | 0,23 | **×0,25** |
 | Schuss aufs Tor | 33 % | Premier League, Schnitt | 0,20 | **×0,2** |
 | Ballkontakt im gegn. Strafraum | ~9 % | eigene Daten (Mbappé) | 0,054 | **×0,05** |
-| Erfolgreiche Flanke | ~7 % | hergeleitet, siehe unten | 0,042 | **×0,05** |
-| Erfolgreiche Dribblings | ~5 % | xT-Literatur, siehe unten | 0,030 | **×0,03** |
 
-**Herleitung erfolgreiche Flanke:** Nur 1 bis 2 % **aller** Flanken fuehren zu
-einem Tor (Premier League: 1,09 % aus dem Spiel, europaweit 1,76 %; rund 73
-Flanken pro Tor). Unsere Stat zaehlt aber nur die **angekommenen** Flanken, und
-das sind je nach Spieler 15 bis 28 % der Versuche. Rechnet man das um:
-1,4 % ÷ 20 % ≈ **7 %** pro angekommener Flanke.
+Fuer **Flanken und Dribblings gilt diese Regel bewusst nicht** — warum, steht
+in §5b.
 
-**Herleitung erfolgreiche Dribblings:** Hier gibt es keine veroeffentlichte
-Quote. Ein gelungenes Dribbling ist eine Fortschritts-Aktion wie ein
-Strafraumkontakt (~9 %), findet aber oft weit vom Tor statt und ist deshalb
-niedriger anzusetzen. Die xT-Literatur bewertet einzelne Progressions-Aktionen
-mit 0,02 bis 0,03 Toren. Angesetzt: **5 %**. Unsicherster Wert im Modell,
-gleichzeitig der kleinste Faktor.
+---
+
+## 5b. Flanken und Dribblings: Rollenerfuellung statt Tornaehe
+
+**Status: gesetzte Werte, keine Herleitung. Bewusste Entscheidung fuer das MVP.**
+
+Die Quoten-Regel wurde fuer diese beiden Kategorien geprueft und **verworfen**.
+Was sie ergeben haette:
+
+- **Flanke:** Nur 1 bis 2 % aller Flanken werden zum Tor (Premier League
+  1,09 %, europaweit 1,76 %, rund 73 Flanken pro Tor). Da unsere Stat nur die
+  angekommenen zaehlt (15 bis 28 % der Versuche), waeren das ~7 % → Faktor 0,05.
+- **Dribbling:** Keine veroeffentlichte Quote. Die xT-Literatur bewertet
+  einzelne Progressions-Aktionen mit 0,02 bis 0,03 Toren → Faktor 0,03.
+
+**Warum das verworfen wurde:** Mit diesen Werten haette Yamal (133 erfolgreiche
+Dribblings) gegenueber Vinícius (87) ganze 1,4 Punkte Vorsprung gehabt — ein
+Siebtel eines Tores fuer 46 gewonnene Zweikaempfe im Eins-gegen-eins. Das ist
+fachlich nicht haltbar.
+
+**Der Denkfehler war die Frage.** Die Quoten-Regel beantwortet: *Wie nah ist
+diese Aktion am Tor?* Bei einem Dribbling lautet die richtige Frage aber:
+*Erfuellt dieser Spieler die Kernaufgabe seiner Position?* Am Gegenspieler
+vorbeizukommen und den Ball nach vorn zu tragen **ist** die Hauptaufgabe eines
+Fluegelspielers. Wer das nicht kann, ist auf dieser Position schlechter — auch
+wenn die einzelne Aktion weit vom Tor entfernt ist.
+
+Gesetzt sind deshalb:
+
+| Kategorie | Faktor | In Worten |
+|---|---|---|
+| Erfolgreiche Flanken | ×0,2 | 50 angekommene Flanken = 1 Tor |
+| Erfolgreiche Dribblings | ×0,15 | 67 gewonnene Dribblings = 1 Tor |
+
+Zwei Leitplanken haben die Hoehe begrenzt:
+
+1. Eine Flanke darf **nicht mehr wert sein als eine Grosschance** (0,25) — sonst
+   waere die Reihenfolge der Faktoren fuer einen Nutzer nicht mehr erklaerbar.
+2. Zusammen machen beide 7 bis 12 % des Scores aus, bleiben also in derselben
+   Groessenordnung wie der Gefahr-Block beim Stuermer.
+
+Wirkung: Yamals 46 Dribblings mehr sind jetzt **0,7 Tore** wert, Olises 22
+Flanken mehr **0,44 Tore**. Spuerbar, aber kein Ersatz fuer Tore.
+
+**Fuer die Zeit nach dem MVP:** Diese beiden Zahlen sind der Punkt, an dem
+Fachwissen statt Statistik entschieden hat. Sie gehoeren mit Analysten
+gegengeprueft — im Gespraech oder ueber Nutzer-Feedback zu den Ranglisten.
 
 Zum Vergleich: ein Schuss **insgesamt** (nicht nur aufs Tor) geht nur zu rund
 10 % rein, eine herausgespielte Chance wird zu rund 10 % zur Vorlage.
@@ -179,32 +215,24 @@ trotzdem auf Platz 10. Genau so soll der Gefahr-Block wirken.
 | Tore | ×10 |
 | Torvorlagen | ×7 |
 | Grosschancen kreiert | ×0,25 |
-| Erfolgreiche Flanken | ×0,05 |
-| Erfolgreiche Dribblings | ×0,03 |
+| Erfolgreiche Flanken | ×0,2 (gesetzt, §5b) |
+| Erfolgreiche Dribblings | ×0,15 (gesetzt, §5b) |
 
 **Probe an vier Fluegelspielern** (Saisonzahlen 25/26, Fotmob):
 
 | | Tore | Vorlagen | Grosschancen | Flanken | Dribblings | Score |
 |---|---|---|---|---|---|---|
-| Olise | 15 → 150 | 19 → 133 | 27 → 6,75 | 31 → 1,55 | 65 → 1,95 | **293,3** |
-| Yamal | 16 → 160 | 11 → 77 | 26 → 6,5 | 23 → 1,15 | 133 → 3,99 | **248,6** |
-| Vinícius | 16 → 160 | 5 → 35 | 7 → 1,75 | 9 → 0,45 | 87 → 2,61 | **199,8** |
-| Gordon | 6 → 60 | 2 → 14 | 5 → 1,25 | 15 → 0,75 | 33 → 0,99 | **77,0** |
+| Olise | 15 → 150 | 19 → 133 | 27 → 6,75 | 31 → 6,2 | 65 → 9,75 | **305,7** |
+| Yamal | 16 → 160 | 11 → 77 | 26 → 6,5 | 23 → 4,6 | 133 → 19,95 | **268,1** |
+| Vinícius | 16 → 160 | 5 → 35 | 7 → 1,75 | 9 → 1,8 | 87 → 13,05 | **211,6** |
+| Gordon | 6 → 60 | 2 → 14 | 5 → 1,25 | 15 → 3,0 | 33 → 4,95 | **83,2** |
 
 Die Reihenfolge ist plausibel, und die drei Top-Spieler liegen deutlich vor
 Gordon — so, wie es der fachlichen Einschaetzung entspricht.
 
-**Wichtig zu wissen:** Der Gefahr-Block macht bei Fluegelspielern nur 2 bis 5 %
-aus, beim Stuermer sind es ~10 %. Das ist kein Fehler, sondern das Ergebnis der
-Regel: Flanken und Dribblings sind nun einmal weiter vom Tor entfernt als
-Schuesse und Strafraumkontakte. Wer will, dass sie staerker ins Gewicht fallen,
-muesste die Regel fuer Fluegel brechen — das waere dann eine Produktentscheidung
-und keine Herleitung mehr.
-
-Praktisch heisst das: **Fluegelspieler werden fast ausschliesslich ueber Tore und
-Vorlagen sortiert.** Flanken und Dribblings entscheiden nur, wenn zwei Spieler
-dicht beieinanderliegen. Yamal zieht mit 133 Dribblings gegenueber Vinícius mit
-87 nur 1,4 Punkte heraus — ein Siebtel eines Tores.
+Die Reihenfolge ist dieselbe wie mit den hergeleiteten Faktoren — die gesetzten
+Werte aus §5b aendern die Rangliste nicht, sie machen nur den Abstand zwischen
+den Spielertypen sichtbar.
 
 ---
 
@@ -257,4 +285,5 @@ Spielzahl, dort greift Stufe 2.
 |---|---|
 | 29.09.2026 | Erste Fassung: ST und Fluegel, Zwei-Bloecke-Modell |
 | 29.09.2026 | Begruendung fuer den Gefahr-Block geschaerft (Wert eines Fehlschusses statt "Stabilitaet"); im Code umgesetzt |
+| 30.09.2026 | Flanken auf 0,2 und Dribblings auf 0,15 gesetzt (§5b): Quoten-Regel verworfen, weil sie die Kernaufgabe der Position nicht abbildet. Fuer das MVP bewusst nach Fachwissen entschieden, spaeter mit Analysten gegenzupruefen. |
 | 30.09.2026 | Regel "Faktor = 0,6 × Quote" formuliert. Flanken von 0,3 auf 0,05 und Dribblings von 0,05 auf 0,03 korrigiert (waren geschaetzt, jetzt hergeleitet). Grosschancen von 0,3 auf 0,25 (Rundung an die Regel angepasst). Geprueft an Olise, Yamal, Vinícius und Gordon. |

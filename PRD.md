@@ -541,9 +541,11 @@ Score = (Tore × 10) + (Torvorlagen × 7) + (Großchancen kreiert × 0,25)
       + (Schüsse aufs Tor × 0,2) + (Kontakte im gegn. Strafraum × 0,05)
 ```
 
-**Flügel (LF, RF):** wie ST, nur die letzten beiden Kategorien: Erfolgr. Flanken × 0,05, Erfolgr. Dribblings × 0,03.
+**Flügel (LF, RF):** wie ST, nur die letzten beiden Kategorien: Erfolgr. Flanken × 0,2, Erfolgr. Dribblings × 0,15.
 
-Für alle Kategorien außer Toren und Torvorlagen gilt eine Regel: **Faktor = 0,6 × Quote, mit der die Aktion zum Tor führt.** Dieselbe Aktion ist damit an jeder Position gleich viel wert.
+Für die Gefahr-Kategorien gilt eine Regel: **Faktor = 0,6 × Quote, mit der die Aktion zum Tor führt.** Dieselbe Aktion ist damit an jeder Position gleich viel wert.
+
+**Ausnahme Flanken und Dribblings:** Dort ist die Quoten-Regel bewusst verworfen. Sie beantwortet „Wie nah ist die Aktion am Tor?", die richtige Frage bei einem Flügelspieler lautet aber „Erfüllt er die Kernaufgabe seiner Position?". Beide Werte sind für das MVP nach Fachwissen gesetzt und später mit Analysten gegenzuprüfen (`docs/score-modell.md` §5b).
 
 Kategorien **und** Faktoren variieren je Position und liegen in `SCORE_MODEL` (`constants/positions.ts`). ST und Flügel sind hergeleitet; OM, ZM, DM, IV, LV, RV und TW laufen noch mit dem Platzhalter-Modell der ersten Fassung.
 
